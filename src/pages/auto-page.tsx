@@ -4,19 +4,20 @@ import { Button } from "../components/Button";
 
 export function Component() {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-[320px] flex-col items-center">
-      <header className="mx-auto flex h-14 w-full items-center px-4 md:px-6">
+    <div className="min-h-dvh">
+      <header className="mx-auto flex h-14 w-full max-w-7xl items-center px-4 md:px-6">
         <Link className="font-serif text-2xl" to="/">
           <span className="text-primary">ino</span>auto
         </Link>
       </header>
       <main className="grow">
-        <section className="px-4 py-12 ">
+        <section className="mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-24">
           <h1 className="text-3xl font-semibold tracking-tighter">
             Gerencie sua Loja de Automóveis com facilidade
           </h1>
           <p className="mt-2">
-            Simplifique operações, impulsione vendas, e cresça seu negócio de loja de veículos com nossa solução tudo-em-um para gerência.
+            Simplifique operações, impulsione vendas, e cresça seu negócio de
+            loja de veículos com nossa solução tudo-em-um para gestão.
           </p>
           <p className="mt-4 flex flex-wrap gap-2">
             <Button asChild>
@@ -33,42 +34,47 @@ export function Component() {
             </Button>
           </p>
         </section>
-        <section className="bg-primary/5 px-4 py-12" id="funcionalidades-chave">
-          <h2 className="text-center text-3xl font-medium tracking-tighter">
-            Funcionalidades Chave
-          </h2>
-          <div className="mt-12 grid gap-6">
-            <div className="rounded border border-gray-300 bg-white p-4">
-              <ChartBar className="size-12 text-primary" />
-              <h3 className="mt-2 font-medium">Gerência de Inventório</h3>
-              <p className="mt-4 text-sm">
-                Track and manage your auto parts inventory across multiple
-                stores with real-time updates and alerts.
-              </p>
-            </div>
-            <div className="rounded border border-gray-300 bg-white p-4">
-              <Users className="size-12 text-primary" />
-              <h3 className="mt-2 font-medium">
-                Customer Relationship Management
-              </h3>
-              <p className="mt-4 text-sm">
-                Manage customer information, track service history, and improve
-                customer retention with targeted marketing.
-              </p>
-            </div>
-            <div className="rounded border border-gray-300 bg-white p-4">
-              <Gear className="size-12 text-primary" />
-              <h3 className="mt-2 font-medium">Service Center Management</h3>
-              <p className="mt-4 text-sm">
-                Schedule appointments, assign technicians, and track service
-                progress for efficient operations.
-              </p>
+        <section
+          className="bg-primary/5 px-4 py-12 md:px-6 md:py-24"
+          id="funcionalidades-chave"
+        >
+          <div className="mx-auto max-w-7xl">
+            <h2 className="text-center text-3xl font-medium tracking-tighter">
+              Funcionalidades Chave
+            </h2>
+            <div className="mt-12 grid gap-6 lg:grid-cols-3">
+              <div className="rounded border border-gray-300 bg-white p-4">
+                <ChartBar className="size-12 text-primary" />
+                <h3 className="mt-2 font-medium">Gestão de Inventório</h3>
+                <p className="mt-4 text-sm">
+                  Rastreie e gerencie seu inventório de veículos da sua loja com
+                  atualizações e alertas em tempo real.
+                </p>
+              </div>
+              <div className="rounded border border-gray-300 bg-white p-4">
+                <Users className="size-12 text-primary" />
+                <h3 className="mt-2 font-medium">
+                  Gestão de Relacionamento com Clientes
+                </h3>
+                <p className="mt-4 text-sm">
+                  Gerencie informações de clientes, rastreie histórico de
+                  compras, e melhore a retenção com um marketing direcionado.
+                </p>
+              </div>
+              <div className="rounded border border-gray-300 bg-white p-4">
+                <Gear className="size-12 text-primary" />
+                <h3 className="mt-2 font-medium">Gestão de Serviços</h3>
+                <p className="mt-4 text-sm">
+                  Agende compromissos, atribua técnicos e acompanhe o progresso
+                  do serviço para operações eficientes.
+                </p>
+              </div>
             </div>
           </div>
         </section>
-        <section className="px-4 py-12">
+        <section className="px-4 py-12 md:px-6 md:py-24">
           <h2 className="text-center text-3xl font-medium tracking-tighter">
-            Pricing Plans
+            Planos de Preços
           </h2>
           <div className="mt-12 grid gap-6">
             <div className="rounded border border-gray-300 bg-white p-4">
@@ -93,9 +99,9 @@ export function Component() {
             </div>
           </div>
         </section>
-        <section className="bg-primary/5 px-4 py-12">
+        <section className="bg-primary/5 px-4 py-12 md:px-6 md:py-24">
           <h2 className="text-center text-3xl font-medium tracking-tighter">
-            What Our Customers Say
+            O que nossos clientes estão dizendo
           </h2>
           <div className="mt-12 text-center text-gray-600">
             Nenhum depoimento registrado até o momemto
@@ -103,11 +109,11 @@ export function Component() {
         </section>
         <section className="px-4 py-12 text-center">
           <h2 className="text-center text-3xl font-medium tracking-tighter">
-            Ready to Grow Your Auto Store Business?
+            Preparado para crescer sua loja de automóveis?
           </h2>
           <p className="mt-2">
-            Join thousands of auto store owners who have transformed their
-            businesses with AutoStorePro.
+            Junte-se a vários proprietários de loja de veículos que
+            transformaram seus negócios conosco.
           </p>
           <p className="mt-4">
             <Button asChild>
@@ -122,9 +128,11 @@ export function Component() {
           </p>
         </section>
       </main>
-      <footer className="mx-auto flex min-h-16 items-center px-4 py-2 text-center text-sm text-gray-600 md:px-6">
-        Este site é mantido e operado por MATHEUS INOCENCIO LOPES -
-        55.740.093/0001-82
+      <footer className="bg-primary/5 p-4 text-center text-sm md:px-6">
+        <p>
+          Este site é mantido e operado por MATHEUS INOCENCIO LOPES -
+          55.740.093/0001-82
+        </p>
       </footer>
     </div>
   );
