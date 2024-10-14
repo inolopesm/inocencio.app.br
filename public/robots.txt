@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /auto/admin/
 
 Sitemap: https://inocencio.app.br/sitemap.xml

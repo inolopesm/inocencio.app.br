@@ -6,9 +6,12 @@ export function Component() {
   return (
     <div className="min-h-dvh">
       <header className="mx-auto flex h-14 w-full max-w-7xl items-center px-4 md:px-6">
-        <Link className="font-serif text-2xl" to="/">
+        <Link className="font-serif text-2xl" to="/auto">
           <span className="text-primary">ino</span>auto
         </Link>
+        <Button className="ml-auto" variant="ghost" asChild>
+          <Link to="/auto/admin">Painel</Link>
+        </Button>
       </header>
       <main className="grow">
         <section className="mx-auto max-w-4xl px-4 py-12 sm:text-center md:px-6 md:py-24 lg:py-32 xl:py-48">
