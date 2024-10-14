@@ -13,11 +13,10 @@ export function Component() {
       <main className="grow">
         <section className="px-4 py-12 ">
           <h1 className="text-3xl font-semibold tracking-tighter">
-            Manage Your Auto Stores with Ease
+            Gerencie sua Loja de Automóveis com facilidade
           </h1>
           <p className="mt-2">
-            Streamline operations, boost sales, and grow your auto store
-            business with our all-in-one management solution.
+            Simplifique operações, impulsione vendas, e cresça seu negócio de loja de veículos com nossa solução tudo-em-um para gerência.
           </p>
           <p className="mt-4 flex flex-wrap gap-2">
             <Button asChild>
@@ -30,18 +29,18 @@ export function Component() {
               </a>
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/">Ver mais</Link>
+              <a href="#funcionalidades-chave">Ver mais</a>
             </Button>
           </p>
         </section>
-        <section className="bg-primary/5 px-4 py-12">
+        <section className="bg-primary/5 px-4 py-12" id="funcionalidades-chave">
           <h2 className="text-center text-3xl font-medium tracking-tighter">
-            Key Features
+            Funcionalidades Chave
           </h2>
           <div className="mt-12 grid gap-6">
             <div className="rounded border border-gray-300 bg-white p-4">
               <ChartBar className="size-12 text-primary" />
-              <h3 className="mt-2 font-medium">Inventory Management</h3>
+              <h3 className="mt-2 font-medium">Gerência de Inventório</h3>
               <p className="mt-4 text-sm">
                 Track and manage your auto parts inventory across multiple
                 stores with real-time updates and alerts.
