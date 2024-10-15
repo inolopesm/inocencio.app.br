@@ -110,8 +110,14 @@ export default function Component() {
         )}
 
         <div className="mt-2 flex justify-end">
-          <Button variant="link" size="sm">
-            Esqueci a senha
+          <Button variant="link" size="sm" asChild>
+            <a
+              href="https://wa.me/5583991957887"
+              rel="noreferrer noopener"
+              target="_blank"
+            >
+              Esqueci a senha
+            </a>
           </Button>
         </div>
 
@@ -125,7 +131,15 @@ export default function Component() {
           Entrar
         </Button>
         <div className="mt-4 flex justify-center">
-          <Button variant="link">Não possuo conta</Button>
+          <Button variant="link" asChild>
+            <a
+              href="https://wa.me/5583991957887"
+              rel="noreferrer noopener"
+              target="_blank"
+            >
+              Não possuo conta
+            </a>
+          </Button>
         </div>
       </form>
     </div>
