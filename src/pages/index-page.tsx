@@ -28,7 +28,7 @@ export function Component() {
             </a>
           </Button>
         </main>
-        <footer className="mx-auto flex h-16 items-center px-4 text-center text-sm text-gray-700 md:px-6">
+        <footer className="mx-auto flex h-16 items-center px-4 text-center text-gray-700 text-sm md:px-6">
           Este site é mantido e operado por MATHEUS INOCENCIO LOPES -
           55.740.093/0001-82
         </footer>

@@ -15,7 +15,7 @@ export function Component() {
       </header>
       <main className="grow">
         <section className="mx-auto max-w-4xl px-4 py-12 sm:text-center md:px-6 md:py-24 lg:py-32 xl:py-48">
-          <h1 className="text-3xl font-semibold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
+          <h1 className="font-semibold text-3xl tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
             Gerencie sua Loja de Automóveis com facilidade
           </h1>
           <p className="mt-2 text-gray-600 md:text-xl">
@@ -42,13 +42,13 @@ export function Component() {
           id="funcionalidades-chave"
         >
           <div className="mx-auto max-w-7xl">
-            <h2 className="text-center text-3xl font-medium tracking-tighter sm:text-5xl">
+            <h2 className="text-center font-medium text-3xl tracking-tighter sm:text-5xl">
               Funcionalidades Chave
             </h2>
             <div className="mt-12 grid gap-6 lg:grid-cols-3">
               <div className="rounded border border-gray-300 bg-white p-4">
                 <ChartBar className="size-12 text-primary" />
-                <h3 className="mt-2 line-clamp-2 h-12 text-2xl font-semibold leading-none tracking-tight">
+                <h3 className="mt-2 line-clamp-2 h-12 font-semibold text-2xl leading-none tracking-tight">
                   Gestão de Inventório
                 </h3>
                 <p className="mt-4">
@@ -58,7 +58,7 @@ export function Component() {
               </div>
               <div className="rounded border border-gray-300 bg-white p-4">
                 <Users className="size-12 text-primary" />
-                <h3 className="mt-2 line-clamp-2 h-12 text-2xl font-semibold leading-none tracking-tight">
+                <h3 className="mt-2 line-clamp-2 h-12 font-semibold text-2xl leading-none tracking-tight">
                   Gestão de Relacionamento com Clientes
                 </h3>
                 <p className="mt-4">
@@ -68,7 +68,7 @@ export function Component() {
               </div>
               <div className="rounded border border-gray-300 bg-white p-4">
                 <Gear className="size-12 text-primary" />
-                <h3 className="mt-2 line-clamp-2 h-12 text-2xl font-semibold leading-none tracking-tight">
+                <h3 className="mt-2 line-clamp-2 h-12 font-semibold text-2xl leading-none tracking-tight">
                   Gestão de Serviços
                 </h3>
                 <p className="mt-4">
@@ -80,13 +80,13 @@ export function Component() {
           </div>
         </section>
         <section className="px-4 py-12 md:px-6 md:py-24 lg:py-32 xl:py-48">
-          <h2 className="text-center text-3xl font-medium tracking-tighter sm:text-5xl">
+          <h2 className="text-center font-medium text-3xl tracking-tighter sm:text-5xl">
             Planos de Preços
           </h2>
           <div className="mt-12 flex justify-center gap-6">
             <div className="w-full max-w-xs rounded border border-gray-300 bg-white p-4">
-              <h3 className="text-xl font-medium">Plano único</h3>
-              <p className="mt-6 text-4xl font-semibold tracking-tighter">
+              <h3 className="font-medium text-xl">Plano único</h3>
+              <p className="mt-6 font-semibold text-4xl tracking-tighter">
                 A negociar
               </p>
               <ul className="mt-4 grid gap-1">
@@ -107,7 +107,7 @@ export function Component() {
           </div>
         </section>
         <section className="bg-primary/5 px-4 py-12 md:px-6 md:py-24 lg:py-32 xl:py-48">
-          <h2 className="text-center text-3xl font-medium tracking-tighter sm:text-5xl">
+          <h2 className="text-center font-medium text-3xl tracking-tighter sm:text-5xl">
             O que nossos clientes estão dizendo
           </h2>
           <div className="mt-12 text-center text-gray-600">
@@ -116,7 +116,7 @@ export function Component() {
         </section>
         <section className="px-4 py-12 md:px-6 md:py-24 lg:py-32 xl:py-48">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-center text-3xl font-medium tracking-tighter sm:text-5xl">
+            <h2 className="text-center font-medium text-3xl tracking-tighter sm:text-5xl">
               Preparado para crescer sua loja de automóveis?
             </h2>
             <p className="mt-2 text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -137,7 +137,7 @@ export function Component() {
           </div>
         </section>
       </main>
-      <footer className="bg-primary/5 p-4 text-center text-sm text-gray-600 md:px-6">
+      <footer className="bg-primary/5 p-4 text-center text-gray-600 text-sm md:px-6">
         <p>
           Este site é mantido e operado por MATHEUS INOCENCIO LOPES -
           55.740.093/0001-82

@@ -1,0 +1,33 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
+	"organizeImports": {
+		"enabled": true
+	},
+	"linter": {
+		"rules": {
+			"a11y": {
+				"noLabelWithoutControl": {
+					"level": "warn",
+					"options": {
+						"inputComponents": ["Input"],
+						"labelComponents": ["Label"]
+					}
+				}
+			},
+			"nursery": {
+				"useSortedClasses": {
+					"level": "warn",
+					"fix": "unsafe",
+					"options": {
+						"attributes": ["class",	"className"],
+						"functions": ["cva"]
+					}
+				}
+			}
+		}
+	},
+	"formatter": {
+		"indentStyle": "space",
+		"indentWidth": 2
+	}
+}

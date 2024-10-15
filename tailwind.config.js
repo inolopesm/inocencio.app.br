@@ -4,6 +4,7 @@ import animate from "tailwindcss-animate";
 const tailwindcssConfig = {
   content: [
     "index.html",
+    "src/main.tsx",
     "src/components/**/*.tsx",
     "src/layouts/**/*.tsx",
     "src/pages/**/*.tsx",

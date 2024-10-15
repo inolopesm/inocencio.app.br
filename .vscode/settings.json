@@ -2,11 +2,15 @@
   "files.eol": "\n",
   "editor.tabSize": 2,
   "typescript.tsdk": "./node_modules/typescript/lib",
-  "css.validate": false,
   "files.associations": { "*.css": "tailwindcss" },
+  "editor.defaultFormatter": "biomejs.biome",
+  "[javascript]": { "editor.formatOnSave": true },
+  "[typescript]": { "editor.formatOnSave": true },
+  "[javascriptreact]": { "editor.formatOnSave": true },
+  "[typescriptreact]": { "editor.formatOnSave": true },
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.fixAll.stylelint": "explicit"
+    "quickfix.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
   },
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
