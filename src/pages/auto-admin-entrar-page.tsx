@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Button } from "../components/Button";
-import { TextField } from "../components/TextField";
+import { Button } from "../components/ui/button";
+import { TextField } from "../components/ui/text-field";
 import { ApiError, api } from "../lib/api";
 import { useAuthStore } from "../stores/auth-store";
 

@@ -1,8 +1,8 @@
 import { Car, LinkedinLogo } from "@phosphor-icons/react/dist/ssr";
 import { Link } from "react-router-dom";
-import { Button } from "../components/Button";
+import { Button } from "../components/ui/button";
 
-export function Component() {
+export default function Component() {
   return (
     <div className="bg-gradient-to-tr from-primary/10 to-transparent">
       <div className="mx-auto flex min-h-dvh max-w-screen-md flex-col items-center">

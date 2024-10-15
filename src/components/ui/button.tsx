@@ -1,6 +1,7 @@
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";
+import { forwardRef } from "react";
 import { twMerge } from "tailwind-merge";
 
 const button = cva(
@@ -38,19 +39,18 @@ export type ButtonProps = React.ComponentProps<"button"> &
     asChild?: boolean;
   };
 
-export function Button({
-  asChild,
-  className,
-  variant,
-  size,
-  ...props
-}: ButtonProps) {
-  const Component = asChild ? Slot : "button";
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ asChild, className, variant, size, ...props }, ref) => {
+    const Component = asChild ? Slot : "button";
 
-  return (
-    <Component
-      className={twMerge(button({ variant, size }), className)}
-      {...props}
-    />
-  );
-}
+    return (
+      <Component
+        ref={ref}
+        className={twMerge(button({ variant, size }), className)}
+        {...props}
+      />
+    );
+  },
+);
+
+export { Button };

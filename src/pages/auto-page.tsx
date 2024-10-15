@@ -1,8 +1,8 @@
 import { ChartBar, Check, Gear, Users } from "@phosphor-icons/react/dist/ssr";
 import { Link } from "react-router-dom";
-import { Button } from "../components/Button";
+import { Button } from "../components/ui/button";
 
-export function Component() {
+export default function Component() {
   return (
     <div className="min-h-dvh">
       <header className="mx-auto flex h-14 w-full max-w-7xl items-center px-4 md:px-6">

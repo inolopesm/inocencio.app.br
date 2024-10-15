@@ -1,7 +1,7 @@
 import { useId } from "react";
-import { FormHelperText } from "./FormHelperText";
-import { Input, type InputProps } from "./Input";
-import { Label } from "./Label";
+import { FormHelperText } from "./form-helper-text";
+import { Input, type InputProps } from "./input";
+import { Label } from "./label";
 
 type TextFieldProps = Pick<
   InputProps,
@@ -13,6 +13,8 @@ type TextFieldProps = Pick<
   | "disabled"
   | "error"
   | "inputMode"
+  | "placeholder"
+  | "autoComplete"
 > & {
   helperText?: string | undefined;
   label: string;
