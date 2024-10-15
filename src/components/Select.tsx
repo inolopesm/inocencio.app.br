@@ -1,6 +1,6 @@
 import { twMerge } from "tailwind-merge";
 
-type SelectProps = React.ComponentProps<"select"> & {
+export type SelectProps = React.ComponentProps<"select"> & {
   onValueChange?: (value: string) => void;
 };
 

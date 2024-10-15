@@ -3,8 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../components/Button";
-import { Input } from "../components/Input";
-import { Label } from "../components/Label";
+import { TextField } from "../components/TextField";
 import { ApiError, api } from "../lib/api";
 import { useAuthStore } from "../stores/auth-store";
 
@@ -12,7 +11,8 @@ const FormSchema = z.object({
   email: z
     .string()
     .min(1, "Por favor informe seu email")
-    .max(255, "Email muito longo"),
+    .max(255, "Email muito longo")
+    .email("Email inválido"),
   password: z
     .string()
     .min(1, "Por favor informe sua senha")
@@ -42,6 +42,7 @@ export default function Component() {
       return;
     }
 
+    setError(undefined);
     setSubmitting(true);
 
     try {
@@ -74,41 +75,27 @@ export default function Component() {
       </div>
       <form className="flex flex-col" onSubmit={handleSubmit}>
         <h1 className="font-semibold text-2xl">Acessar Painel</h1>
-        <Label className="mt-4" htmlFor="email">
-          Email
-        </Label>
-        <Input
-          className="mt-1"
-          type="text"
-          id="email"
+        <TextField
+          inputMode="email"
           autoCapitalize="none"
+          className="mt-6"
           value={email}
           onValueChange={setEmail}
           disabled={submitting}
+          error={errors?.fieldErrors.email !== undefined}
+          helperText={errors?.fieldErrors.email?.at(0)}
+          label="Email"
         />
-        {errors?.fieldErrors.email !== undefined && (
-          <div className="mt-1 text-red-500 text-sm">
-            {errors.fieldErrors.email[0]}
-          </div>
-        )}
-
-        <Label className="mt-4" htmlFor="password">
-          Senha
-        </Label>
-        <Input
-          className="mt-1"
+        <TextField
+          className="mt-4"
           type="password"
-          id="password"
           value={password}
           onValueChange={setPassword}
           disabled={submitting}
+          error={errors?.fieldErrors.password !== undefined}
+          helperText={errors?.fieldErrors.password?.at(0)}
+          label="Senha"
         />
-        {errors?.fieldErrors.password !== undefined && (
-          <div className="mt-1 text-red-500 text-sm">
-            {errors.fieldErrors.password[0]}
-          </div>
-        )}
-
         <div className="mt-2 flex justify-end">
           <Button variant="link" size="sm" asChild>
             <a
