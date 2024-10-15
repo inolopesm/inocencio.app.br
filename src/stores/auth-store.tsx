@@ -3,9 +3,10 @@ import { z } from "zod";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+const AccessTokenSchema = z.object({ email: z.string(), name: z.string() });
+
 type State = {
-  accessTokenEncoded: string;
-  accessTokenDecodedSub: string;
+  accessToken: { encoded: string; decoded: z.infer<typeof AccessTokenSchema> };
   authenticated: boolean;
 };
 
@@ -16,10 +17,13 @@ type Action = {
 
 const makeState = (accessToken: string): State => ({
   authenticated: accessToken !== "",
-  accessTokenEncoded: accessToken,
-  accessTokenDecodedSub: accessToken
-    ? z.object({ sub: z.string() }).parse(jwtDecode(accessToken)).sub
-    : "",
+
+  accessToken: {
+    encoded: accessToken,
+    decoded: accessToken
+      ? AccessTokenSchema.parse(jwtDecode(accessToken))
+      : { email: "", name: "" },
+  },
 });
 
 const initialState: State = makeState("");

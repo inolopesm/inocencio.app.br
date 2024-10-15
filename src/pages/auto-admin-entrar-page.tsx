@@ -53,7 +53,6 @@ export default function Component() {
         .parse(response.data);
 
       login(accessToken);
-      toast.success("Acesso autorizado com sucesso. Redirecionando...");
       navigate("/auto/admin");
     } catch (error) {
       setSubmitting(false);

@@ -1,5 +1,4 @@
 import axios from "axios";
-import { getCookie, removeCookie } from "../utils/cookie";
 
 export class ApiError extends Error {
   constructor(message?: string) {
@@ -14,8 +13,14 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((request) => {
-  const accessToken = getCookie("accessToken");
-  if (accessToken) request.headers["x-access-token"] = accessToken;
+  const accessToken = JSON.parse(
+    window.sessionStorage.getItem("auth-storage") ?? "{}",
+  )?.state?.accessToken?.encoded;
+
+  if (accessToken) {
+    request.headers["x-access-token"] = accessToken;
+  }
+
   return request;
 });
 
@@ -39,7 +44,7 @@ api.interceptors.response.use(
       typeof error.response.data.message === "string"
     ) {
       if (error.response.data.message === "Não Autorizado") {
-        removeCookie("accessToken");
+        window.sessionStorage.removeItem("auth-storage");
         window.location.reload();
       }
 

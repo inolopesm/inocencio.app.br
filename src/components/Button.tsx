@@ -11,7 +11,7 @@ const button = cva(
         default:
           "border-primary bg-primary text-white hover:border-[#0dab45] hover:bg-[#0dab45] active:border-[#0c983d] active:bg-[#0c983d]",
         destructive:
-          "border-red-500 bg-red-500 text-white hover:border-red-400 hover:bg-red-400 active:border-red-300 active:bg-red-300",
+          "border-transparent text-red-500 hover:bg-red-500/5 active:bg-red-500/10",
         outline:
           "border-gray-200 hover:border-gray-300 hover:bg-white/5 active:border-gray-400 active:bg-white/10",
         secondary:
