@@ -66,7 +66,7 @@ export default function Component() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12 md:px-6">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-tl from-primary/10 to-white px-4 py-12 md:px-6">
       <div className="absolute top-2 left-4 md:left-6">
         <Link className="font-serif text-2xl" to="/auto">
           <span className="text-primary">ino</span>auto
