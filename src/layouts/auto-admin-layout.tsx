@@ -20,7 +20,7 @@ export default function Component() {
       <header className="mx-auto flex min-h-14 w-full max-w-7xl flex-wrap items-center gap-4 px-4 md:px-6">
         <Popover.Root>
           <Popover.Trigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button className="sm:hidden" variant="ghost" size="icon">
               <List className="size-5" />
             </Button>
           </Popover.Trigger>
@@ -55,6 +55,14 @@ export default function Component() {
           </span>{" "}
           <span className="text-gray-600">admin</span>
         </Link>
+        <Button className="hidden sm:inline-flex" type="button" variant="ghost">
+          <ChartLine className="size-5" />
+          Dashboard
+        </Button>
+        <Button className="hidden sm:inline-flex" type="button" variant="ghost">
+          <Car className="size-5" />
+          Veículos
+        </Button>
         <Popover.Root>
           <Popover.Trigger className="inline-flex size-8 shrink-0 items-center justify-center rounded-[50%] bg-gray-200">
             <User className="size-4" />
