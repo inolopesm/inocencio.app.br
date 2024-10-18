@@ -1,8 +1,14 @@
 import { Plus } from "@phosphor-icons/react/dist/ssr";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
+import { api } from "../lib/api";
 
 export default function Component() {
+  useEffect(() => {
+    api("/automobiles").then((response) => console.log(response.data));
+  }, []);
+
   return (
     <>
       <header className="flex items-center">

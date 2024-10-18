@@ -55,13 +55,27 @@ export default function Component() {
           </span>{" "}
           <span className="text-gray-600">admin</span>
         </Link>
-        <Button className="hidden sm:inline-flex" type="button" variant="ghost">
-          <ChartLine className="size-5" />
-          Dashboard
+        <Button
+          className="hidden sm:inline-flex"
+          type="button"
+          variant="ghost"
+          asChild
+        >
+          <Link to="/auto/admin">
+            <ChartLine className="size-5" />
+            Dashboard
+          </Link>
         </Button>
-        <Button className="hidden sm:inline-flex" type="button" variant="ghost">
-          <Car className="size-5" />
-          Veículos
+        <Button
+          className="hidden sm:inline-flex"
+          type="button"
+          variant="ghost"
+          asChild
+        >
+          <Link to="/auto/admin/automoveis">
+            <Car className="size-5" />
+            Veículos
+          </Link>
         </Button>
         <Popover.Root>
           <Popover.Trigger className="inline-flex size-8 shrink-0 items-center justify-center rounded-[50%] bg-gray-200">
