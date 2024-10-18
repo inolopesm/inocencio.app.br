@@ -65,6 +65,10 @@ const Template: React.FC<TemplateProps> = ({ children }) => {
     return null;
   }
 
+  if (pathname === "/auto/admin/entrar/") {
+    return children;
+  }
+
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="mx-auto flex min-h-14 w-full max-w-7xl flex-wrap items-center gap-4 px-4 md:px-6">
