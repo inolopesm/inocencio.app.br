@@ -16,7 +16,7 @@ const Page: React.FC = () => (
       </header>
       <main className="flex w-full max-w-[320px] grow flex-col justify-center gap-2 px-4 md:px-6">
         <Button asChild>
-          <Link href="/auto">
+          <Link href="/auto/">
             <CarIcon className="size-4" />
             inoauto
           </Link>

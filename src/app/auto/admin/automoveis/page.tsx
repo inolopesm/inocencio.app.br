@@ -41,7 +41,7 @@ const Page: React.FC = () => {
       <header className="flex items-start">
         <h1 className="mr-auto font-semibold text-2xl">Automóveis</h1>
         <Button asChild>
-          <Link href="/auto/admin/automoveis/novo">
+          <Link href="/auto/admin/automoveis/novo/">
             <PlusIcon className="size-4" />
             <span>
               Novo<span className="hidden sm:inline"> Automóvel</span>
@@ -54,7 +54,7 @@ const Page: React.FC = () => {
           <Link
             className="hover:-translate-y-px active:-translate-y-0.5 block rounded border border-gray-300 p-2 text-start"
             key={automobile.id}
-            href={`/auto/admin/automoveis/visualizar?id=${automobile.id}`}
+            href={`/auto/admin/automoveis/visualizar/?id=${automobile.id}`}
           >
             <span className="line-clamp-2 block h-12 font-medium">
               {automobile.brand} {automobile.model} {automobile.manufactureYear}

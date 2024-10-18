@@ -286,7 +286,7 @@ const Page: React.FC = () => {
     try {
       await api.post("/automobiles", result.data);
       toast.success("Automóvel cadastrado com sucesso");
-      router.push("/auto/admin/automoveis");
+      router.push("/auto/admin/automoveis/");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
     } finally {
@@ -298,7 +298,7 @@ const Page: React.FC = () => {
     <>
       <h1 className="font-semibold text-2xl">Novo Automóvel</h1>
       <Button className="mt-6" variant="secondary" asChild>
-        <Link href="/auto/admin/automoveis">
+        <Link href="/auto/admin/automoveis/">
           <ArrowLeft className="size-4" />
           Voltar
         </Link>
@@ -397,7 +397,7 @@ const Page: React.FC = () => {
         </div>
         <div className="mt-6 flex justify-end gap-2">
           <Button variant="secondary" asChild>
-            <Link href="/auto/admin/automoveis">
+            <Link href="/auto/admin/automoveis/">
               <X className="size-4" />
               Cancelar
             </Link>

@@ -11,11 +11,11 @@ import { Button } from "../../components/ui/button";
 const Page: React.FC = () => (
   <div className="min-h-dvh">
     <header className="mx-auto flex h-14 w-full max-w-7xl items-center px-4 md:px-6">
-      <Link className="font-serif text-2xl" href="/auto">
+      <Link className="font-serif text-2xl" href="/auto/">
         <span className="text-primary">ino</span>auto
       </Link>
       <Button className="ml-auto" variant="ghost" asChild>
-        <Link href="/auto/admin" prefetch={false}>
+        <Link href="/auto/admin/" prefetch={false}>
           Painel
         </Link>
       </Button>
