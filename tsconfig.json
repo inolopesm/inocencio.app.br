@@ -5,7 +5,7 @@
     /* Projects */
     "incremental": true,
     // "composite": true,
-    // "tsBuildInfoFile": "./.tsbuildinfo",
+    "tsBuildInfoFile": "./node_modules/.cache/tsconfig.tsbuildinfo",
     // "disableSourceOfProjectReferenceRedirect": true,
     // "disableSolutionSearching": true,
     // "disableReferencedProjectLoad": true,
