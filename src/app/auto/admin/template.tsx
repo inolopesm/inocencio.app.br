@@ -1,19 +1,69 @@
-import { ChartLine } from "@phosphor-icons/react";
-import { Car, List, SignOut, User } from "@phosphor-icons/react/dist/ssr";
-import * as Popover from "@radix-ui/react-popover";
-import { Link, Outlet, useNavigate } from "react-router-dom";
-import { Button } from "../components/ui/button";
-import { useAuthStore } from "../stores/auth-store";
+"use client";
 
-export default function Component() {
+import {
+  Car as CarIcon,
+  ChartLine as ChartLineIcon,
+  List as ListIcon,
+  SignOut as SignOutIcon,
+  User as UserIcon,
+} from "@phosphor-icons/react/dist/ssr";
+
+import * as Popover from "@radix-ui/react-popover";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
+import { Button } from "../../../components/ui/button";
+
+import {
+  AuthStoreContext,
+  useAuthStore,
+} from "../../../providers/auth-store-provider";
+
+type TemplateProps = {
+  children: React.ReactNode;
+};
+
+const Template: React.FC<TemplateProps> = ({ children }) => {
+  const pathname = usePathname();
+  const router = useRouter();
+  const authenticated = useAuthStore((state) => state.authenticated);
   const user = useAuthStore((state) => state.accessToken.decoded);
   const logout = useAuthStore((state) => state.logout);
-  const navigate = useNavigate();
+  const authStore = useContext(AuthStoreContext);
+  const [hydrated, setHydrated] = useState(false);
 
   const handleLogout = () => {
     logout();
-    navigate("/auto/admin/entrar");
+    router.push("/auto/admin/entrar/");
   };
+
+  useEffect(() => {
+    if (authStore === undefined) return;
+    authStore.persist.rehydrate();
+    setHydrated(true);
+  }, [authStore]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+
+    if (pathname === "/auto/admin/entrar/" && authenticated) {
+      router.push("/auto/admin/");
+      return;
+    }
+
+    if (pathname !== "/auto/admin/entrar/" && !authenticated) {
+      router.push("/auto/admin/entrar/");
+      return;
+    }
+  }, [pathname, router, authenticated, hydrated]);
+
+  if (pathname === "/auto/admin/entrar/" && authenticated) {
+    return null;
+  }
+
+  if (pathname !== "/auto/admin/entrar/" && !authenticated) {
+    return null;
+  }
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -21,7 +71,7 @@ export default function Component() {
         <Popover.Root>
           <Popover.Trigger asChild>
             <Button className="sm:hidden" variant="ghost" size="icon">
-              <List className="size-5" />
+              <ListIcon className="size-5" />
             </Button>
           </Popover.Trigger>
           <Popover.Portal>
@@ -32,16 +82,16 @@ export default function Component() {
             >
               <Popover.Close asChild>
                 <Button variant="ghost" className="justify-start" asChild>
-                  <Link to="/auto/admin">
-                    <ChartLine className="size-5" />
+                  <Link href="/auto/admin/">
+                    <ChartLineIcon className="size-5" />
                     Dashboard
                   </Link>
                 </Button>
               </Popover.Close>
               <Popover.Close asChild>
                 <Button variant="ghost" className="justify-start" asChild>
-                  <Link to="/auto/admin/automoveis">
-                    <Car className="size-5" />
+                  <Link href="/auto/admin/automoveis/">
+                    <CarIcon className="size-5" />
                     Automóveis
                   </Link>
                 </Button>
@@ -49,7 +99,10 @@ export default function Component() {
             </Popover.Content>
           </Popover.Portal>
         </Popover.Root>
-        <Link className="mr-auto whitespace-nowrap font-serif" to="/auto/admin">
+        <Link
+          className="mr-auto whitespace-nowrap font-serif"
+          href="/auto/admin/"
+        >
           <span className="text-2xl">
             <span className="text-primary">ino</span>auto
           </span>{" "}
@@ -61,8 +114,8 @@ export default function Component() {
           variant="ghost"
           asChild
         >
-          <Link to="/auto/admin">
-            <ChartLine className="size-5" />
+          <Link href="/auto/admin/">
+            <ChartLineIcon className="size-5" />
             Dashboard
           </Link>
         </Button>
@@ -72,14 +125,14 @@ export default function Component() {
           variant="ghost"
           asChild
         >
-          <Link to="/auto/admin/automoveis">
-            <Car className="size-5" />
-            Veículos
+          <Link href="/auto/admin/automoveis/">
+            <CarIcon className="size-5" />
+            Automóveis
           </Link>
         </Button>
         <Popover.Root>
           <Popover.Trigger className="inline-flex size-8 shrink-0 items-center justify-center rounded-[50%] bg-gray-200">
-            <User className="size-4" />
+            <UserIcon className="size-4" />
           </Popover.Trigger>
           <Popover.Portal>
             <Popover.Content
@@ -94,7 +147,7 @@ export default function Component() {
                   variant="destructive"
                   onClick={handleLogout}
                 >
-                  <SignOut className="size-4" />
+                  <SignOutIcon className="size-4" />
                   Sair
                 </Button>
               </div>
@@ -103,7 +156,7 @@ export default function Component() {
         </Popover.Root>
       </header>
       <main className="mx-auto w-full max-w-7xl grow px-4 py-12 md:px-6">
-        <Outlet />
+        {children}
       </main>
       <footer className="p-4 text-center text-gray-600 text-sm md:px-6">
         <p>
@@ -113,4 +166,6 @@ export default function Component() {
       </footer>
     </div>
   );
-}
+};
+
+export default Template;

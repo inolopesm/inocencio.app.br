@@ -1,15 +1,17 @@
+"use client";
 import { ArrowLeft, FloppyDisk, X } from "@phosphor-icons/react/dist/ssr";
 import axios from "axios";
 import * as O from "fp-ts/Option";
 import { pipe } from "fp-ts/lib/function";
 import * as S from "fp-ts/string";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Button } from "../components/ui/button";
-import { TextField } from "../components/ui/text-field";
-import { api } from "../lib/api";
+import { Button } from "../../../../../components/ui/button";
+import { TextField } from "../../../../../components/ui/text-field";
+import { api } from "../../../../../lib/api";
 
 // biome-ignore format: better readability
 const STATES = [
@@ -163,7 +165,7 @@ const FormSchema = z.object({
     .refine((value) => STATES.includes(value), "Estado inválido"),
 });
 
-export default function Component() {
+const Page: React.FC = () => {
   const [plate, setPlate] = useState("");
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
@@ -176,7 +178,7 @@ export default function Component() {
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handlePlateChange = async (value: string) => {
     const newPlate = pipe(
@@ -193,7 +195,7 @@ export default function Component() {
     setLoading(true);
 
     try {
-      const token = import.meta.env.VITE_API_PLACAS_TOKEN;
+      const token = process.env.NEXT_PUBLIC_API_PLACAS_TOKEN;
       const url = `https://wdapi2.com.br/consulta/${newPlate}/${token}`;
       const response = await axios<unknown>(url);
       const apiplacas = ApiPlacasSchema.parse(response.data);
@@ -284,7 +286,7 @@ export default function Component() {
     try {
       await api.post("/automobiles", result.data);
       toast.success("Automóvel cadastrado com sucesso");
-      navigate("/auto/admin/automoveis");
+      router.push("/auto/admin/automoveis");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
     } finally {
@@ -296,7 +298,7 @@ export default function Component() {
     <>
       <h1 className="font-semibold text-2xl">Novo Automóvel</h1>
       <Button className="mt-6" variant="secondary" asChild>
-        <Link to="/auto/admin/automoveis">
+        <Link href="/auto/admin/automoveis">
           <ArrowLeft className="size-4" />
           Voltar
         </Link>
@@ -395,7 +397,7 @@ export default function Component() {
         </div>
         <div className="mt-6 flex justify-end gap-2">
           <Button variant="secondary" asChild>
-            <Link to="/auto/admin/automoveis">
+            <Link href="/auto/admin/automoveis">
               <X className="size-4" />
               Cancelar
             </Link>
@@ -408,4 +410,6 @@ export default function Component() {
       </form>
     </>
   );
-}
+};
+
+export default Page;

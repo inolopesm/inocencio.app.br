@@ -1,11 +1,13 @@
+"use client";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Button } from "../components/ui/button";
-import { TextField } from "../components/ui/text-field";
-import { ApiError, api } from "../lib/api";
-import { useAuthStore } from "../stores/auth-store";
+import { Button } from "../../../../components/ui/button";
+import { TextField } from "../../../../components/ui/text-field";
+import { ApiError, api } from "../../../../lib/api";
+import { useAuthStore } from "../../../../providers/auth-store-provider";
 
 const FormSchema = z.object({
   email: z
@@ -19,12 +21,12 @@ const FormSchema = z.object({
     .max(64, "Senha muito longa"),
 });
 
-export default function Component() {
+const Page: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const login = useAuthStore((state) => state.login);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [errors, setError] =
     useState<z.inferFlattenedErrors<typeof FormSchema>>();
@@ -53,7 +55,7 @@ export default function Component() {
         .parse(response.data);
 
       login(accessToken);
-      navigate("/auto/admin");
+      router.push("/auto/admin/");
     } catch (error) {
       setSubmitting(false);
 
@@ -68,7 +70,7 @@ export default function Component() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-tl from-primary/10 to-white px-4 py-12 md:px-6">
       <div className="absolute top-2 left-4 md:left-6">
-        <Link className="font-serif text-2xl" to="/auto">
+        <Link className="font-serif text-2xl" href="/auto">
           <span className="text-primary">ino</span>auto
         </Link>
       </div>
@@ -106,13 +108,11 @@ export default function Component() {
             </a>
           </Button>
         </div>
-
         {errors?.formErrors !== undefined && (
           <div className="mt-6 text-center text-red-500 text-sm">
             {errors.formErrors[0]}
           </div>
         )}
-
         <Button type="submit" className="mt-6" disabled={submitting}>
           Entrar
         </Button>
@@ -130,4 +130,6 @@ export default function Component() {
       </form>
     </div>
   );
-}
+};
+
+export default Page;

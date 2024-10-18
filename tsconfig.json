@@ -3,7 +3,7 @@
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
     /* Projects */
-    // "incremental": true,
+    "incremental": true,
     // "composite": true,
     // "tsBuildInfoFile": "./.tsbuildinfo",
     // "disableSourceOfProjectReferenceRedirect": true,
@@ -11,9 +11,9 @@
     // "disableReferencedProjectLoad": true,
 
     /* Language and Environment */
-    "target": "es2022",
-    "lib": ["es2023", "dom", "dom.iterable"],
-    "jsx": "react-jsx",
+    "target": "esnext",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "preserve",
     // "experimentalDecorators": true,
     // "emitDecoratorMetadata": true,
     // "jsxFactory": "",
@@ -21,11 +21,11 @@
     // "jsxImportSource": "",
     // "reactNamespace": "",
     // "noLib": true,
-    "useDefineForClassFields": true,
-    "moduleDetection": "force",
+    // "useDefineForClassFields": true,
+    // "moduleDetection": "force",
 
     /* Modules */
-    "module": "preserve",
+    "module": "esnext",
     // "rootDir": "./",
     "moduleResolution": "bundler",
     // "baseUrl": "./",
@@ -35,17 +35,17 @@
     // "types": [],
     // "allowUmdGlobalAccess": true,
     // "moduleSuffixes": [],
-    "allowImportingTsExtensions": true,
+    // "allowImportingTsExtensions": true,
     // "resolvePackageJsonExports": true,
     // "resolvePackageJsonImports": true,
     // "customConditions": [],
     // "noUncheckedSideEffectImports": true,
-    // "resolveJsonModule": true,
+    "resolveJsonModule": true,
     // "allowArbitraryExtensions": true,
     // "noResolve": true,
 
     /* JavaScript Support */
-    // "allowJs": true,
+    "allowJs": true,
     // "checkJs": true,
     // "maxNodeModuleJsDepth": 1,
 
@@ -74,7 +74,7 @@
 
     /* Interop Constraints */
     "isolatedModules": true,
-    "verbatimModuleSyntax": true,
+    // "verbatimModuleSyntax": true,
     // "isolatedDeclarations": true,
     // "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -83,29 +83,40 @@
 
     /* Type Checking */
     "strict": true,
-    "noImplicitAny": true,
+    // "noImplicitAny": true,
     "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "strictBuiltinIteratorReturn": true,
-    "noImplicitThis": true,
-    "useUnknownInCatchVariables": true,
+    // "strictFunctionTypes": true,
+    // "strictBindCallApply": true,
+    // "strictPropertyInitialization": true,
+    // "strictBuiltinIteratorReturn": true,
+    // "noImplicitThis": true,
+    // "useUnknownInCatchVariables": true,
     // "alwaysStrict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     // "exactOptionalPropertyTypes": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
+    // "noImplicitReturns": true,
+    // "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
+    // "noImplicitOverride": true,
     // "noPropertyAccessFromIndexSignature": true,
     // "allowUnusedLabels": true,
     // "allowUnreachableCode": true,
 
     /* Completeness */
     // "skipDefaultLibCheck": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+
+    /* Other */
+    "plugins": [{ "name": "next" }]
   },
-  "include": ["src"]
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

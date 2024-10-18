@@ -15,6 +15,8 @@ type Action = {
   logout: () => void;
 };
 
+export type AuthStore = State & Action;
+
 const makeState = (accessToken: string): State => ({
   authenticated: accessToken !== "",
 
@@ -26,20 +28,22 @@ const makeState = (accessToken: string): State => ({
   },
 });
 
-const initialState: State = makeState("");
+const defaultInitialState: State = makeState("");
 
-const useAuthStore = create<State & Action>()(
-  persist(
-    (set) => ({
-      ...initialState,
-      login: (accessToken) => set(makeState(accessToken)),
-      logout: () => set(initialState),
-    }),
-    {
-      name: "auth-storage",
-      storage: createJSONStorage(() => window.sessionStorage),
-    },
-  ),
-);
+const createAuthStore = (initialState: State = defaultInitialState) =>
+  create<AuthStore>()(
+    persist(
+      (set) => ({
+        ...initialState,
+        login: (accessToken) => set(makeState(accessToken)),
+        logout: () => set(initialState),
+      }),
+      {
+        name: "auth-storage",
+        storage: createJSONStorage(() => window.sessionStorage),
+        skipHydration: true,
+      },
+    ),
+  );
 
-export { useAuthStore };
+export { createAuthStore };
