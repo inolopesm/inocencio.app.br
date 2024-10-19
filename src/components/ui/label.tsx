@@ -1,8 +1,11 @@
 import { twMerge } from "tailwind-merge";
 
-export function Label({ className, ...props }: React.ComponentProps<"label">) {
+export const Label = ({
+  className,
+  ...props
+}: React.ComponentProps<"label">) => {
   return (
-    // biome-ignore lint/a11y/noLabelWithoutControl: already configurated to warn on <Label /> call
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control
     <label className={twMerge("font-medium text-sm", className)} {...props} />
   );
-}
+};

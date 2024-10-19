@@ -4,11 +4,11 @@ export type FormHelperTextProps = React.ComponentProps<"p"> & {
   error?: boolean | undefined;
 };
 
-export function FormHelperText({
+export const FormHelperText = ({
   className,
   error,
   ...props
-}: FormHelperTextProps) {
+}: FormHelperTextProps) => {
   return (
     <p
       className={twMerge(
@@ -19,4 +19,4 @@ export function FormHelperText({
       {...props}
     />
   );
-}
+};

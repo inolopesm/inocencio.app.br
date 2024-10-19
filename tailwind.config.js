@@ -1,5 +1,5 @@
 /** @type {import("tailwindcss").Config} */
-const tailwindcssConfig = {
+module.exports = {
   content: [
     "index.html",
     "src/components/**/*.tsx",
@@ -18,5 +18,3 @@ const tailwindcssConfig = {
     },
   },
 };
-
-export default tailwindcssConfig;

@@ -4,12 +4,12 @@ export type SelectProps = React.ComponentProps<"select"> & {
   onValueChange?: (value: string) => void;
 };
 
-export function Select({
+export const Select = ({
   className,
   onChange,
   onValueChange,
   ...props
-}: SelectProps) {
+}: SelectProps) => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (onChange) {
       onChange(event);
@@ -30,4 +30,4 @@ export function Select({
       {...props}
     />
   );
-}
+};

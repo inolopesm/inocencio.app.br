@@ -5,13 +5,13 @@ export type InputProps = React.ComponentProps<"input"> & {
   error?: boolean | undefined;
 };
 
-export function Input({
+export const Input = ({
   className,
   onChange,
   onValueChange,
   error,
   ...props
-}: InputProps) {
+}: InputProps) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (onChange) {
       onChange(event);
@@ -33,4 +33,4 @@ export function Input({
       {...props}
     />
   );
-}
+};

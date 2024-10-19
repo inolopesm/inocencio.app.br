@@ -1,11 +1,11 @@
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
-import type { VariantProps } from "class-variance-authority";
 import { forwardRef } from "react";
 import { twMerge } from "tailwind-merge";
+import type { VariantProps } from "class-variance-authority";
 
 const button = cva(
-  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded border font-medium text-sm ring-offset-white duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
+  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded border text-sm font-medium ring-offset-white duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
   {
     variants: {
       variant: {
@@ -53,5 +53,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     );
   },
 );
+
+Button.displayName = "Button";
 
 export { Button };

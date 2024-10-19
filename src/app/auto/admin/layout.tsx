@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import { AuthStoreProvider } from "../../../providers/auth-store-provider";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "inoauto admin",

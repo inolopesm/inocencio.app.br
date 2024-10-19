@@ -1,0 +1,92 @@
+{
+  "root": true,
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+  "rules": {
+    "no-console": "warn",
+    "no-alert": "warn",
+    "no-shadow": "warn",
+    "sort-imports": ["warn", { "ignoreDeclarationSort": true }]
+  },
+  "overrides": [
+    {
+      "files": ["src/**"],
+      "rules": {
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportDeclaration[source.value='react'][specifiers.0.type='ImportDefaultSpecifier']",
+            "message": "Default React import not allowed since we use the TypeScript jsx-transform. If you need a global type that collides with a React named export (such as `MouseEvent`), try using `globalThis.MouseHandler`"
+          },
+          {
+            "selector": "ImportDeclaration[source.value='react'] :matches(ImportNamespaceSpecifier)",
+            "message": "Named * React import is not allowed. Please import what you need from React with Named Imports"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/*.{ts,tsx}"],
+      "env": { "browser": true },
+      "extends": [
+        "plugin:@typescript-eslint/recommended-type-checked",
+        "plugin:react/recommended",
+        "plugin:react/jsx-runtime",
+        "plugin:react-hooks/recommended",
+        "plugin:jsx-a11y/recommended",
+        "plugin:tailwindcss/recommended",
+        "plugin:import-x/recommended",
+        "plugin:import-x/typescript",
+        "plugin:@next/next/recommended"
+      ],
+      "parser": "@typescript-eslint/parser",
+      "plugins": ["@typescript-eslint"],
+      "parserOptions": {
+        "project": "./tsconfig.json"
+      },
+      "rules": {
+        "no-shadow": "off",
+        "@typescript-eslint/no-shadow": "warn",
+        "@typescript-eslint/array-type": ["warn", { "default": "array-simple" }],
+        "@typescript-eslint/consistent-type-definitions": ["warn", "type"],
+        "@typescript-eslint/consistent-type-imports": "off",
+        "@typescript-eslint/method-signature-style": "warn",
+        "@typescript-eslint/strict-boolean-expressions": ["warn", { "allowNullableBoolean": true }],
+        "@typescript-eslint/use-unknown-in-catch-callback-variable": "warn",
+        "react/function-component-definition": ["warn", { "namedComponents": "arrow-function", "unnamedComponents": "arrow-function" }],
+        "react/jsx-boolean-value": ["warn", "never"],
+        "react/jsx-no-leaked-render": "warn",
+        "react/jsx-no-useless-fragment": "warn",
+        "react/jsx-sort-props": ["warn", { "shorthandLast": true, "multiline": "last", "reservedFirst": true }],
+        "react/prop-types": "off",
+        "import-x/order": ["warn", { "groups": ["builtin", "external", "parent", "sibling", "type"], "alphabetize": { "order": "asc" }, "warnOnUnassignedImports": true }],
+        "import-x/consistent-type-specifier-style": ["warn", "prefer-top-level"],
+        "@next/next/no-img-element": "off"
+      },
+      "settings": {
+        "react": {
+          "version": "detect"
+        },
+        "jsx-a11y": {
+          "components": {
+            "Input": "input",
+            "Button": "button",
+            "Select": "select",
+            "TextField": "input",
+            "Label": "label"
+          }
+        },
+        "tailwindcss": {
+          "callees": ["cva"]
+        },
+        "import-x/resolver": {
+          "typescript": true,
+          "node": true
+        }
+      }
+    },
+    {
+      "files": ["next.config.js", "postcss.config.js", "tailwind.config.js"],
+      "env": { "node": true }
+    }
+  ]
+}

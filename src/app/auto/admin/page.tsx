@@ -1,7 +1,7 @@
 const Page: React.FC = () => (
   <div>
-    <div className="font-semibold text-2xl">Dashboard</div>
-    <div className="mt-6 text-gray-600 text-sm">
+    <div className="text-2xl font-semibold">Dashboard</div>
+    <div className="mt-6 text-sm text-gray-600">
       Nenhum conteúdo disponível até o momento
     </div>
   </div>

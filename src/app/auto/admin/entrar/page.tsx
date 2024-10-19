@@ -69,36 +69,36 @@ const Page: React.FC = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-tl from-primary/10 to-white px-4 py-12 md:px-6">
-      <div className="absolute top-2 left-4 md:left-6">
+      <div className="absolute left-4 top-2 md:left-6">
         <Link className="font-serif text-2xl" href="/auto/">
           <span className="text-primary">ino</span>auto
         </Link>
       </div>
-      <form className="flex flex-col" onSubmit={handleSubmit}>
-        <h1 className="font-semibold text-2xl">Acessar Painel</h1>
+      <form className="flex flex-col" onSubmit={(e) => void handleSubmit(e)}>
+        <h1 className="text-2xl font-semibold">Acessar Painel</h1>
         <TextField
-          inputMode="email"
           autoCapitalize="none"
           className="mt-6"
-          value={email}
-          onValueChange={setEmail}
           disabled={submitting}
           error={errors?.fieldErrors.email !== undefined}
           helperText={errors?.fieldErrors.email?.at(0)}
+          inputMode="email"
           label="Email"
+          onValueChange={setEmail}
+          value={email}
         />
         <TextField
           className="mt-4"
-          type="password"
-          value={password}
-          onValueChange={setPassword}
           disabled={submitting}
           error={errors?.fieldErrors.password !== undefined}
           helperText={errors?.fieldErrors.password?.at(0)}
           label="Senha"
+          onValueChange={setPassword}
+          type="password"
+          value={password}
         />
         <div className="mt-2 flex justify-end">
-          <Button variant="link" size="sm" asChild>
+          <Button size="sm" variant="link" asChild>
             <a
               href="https://wa.me/5583991957887"
               rel="noreferrer noopener"
@@ -109,11 +109,11 @@ const Page: React.FC = () => {
           </Button>
         </div>
         {errors?.formErrors !== undefined && (
-          <div className="mt-6 text-center text-red-500 text-sm">
+          <div className="mt-6 text-center text-sm text-red-500">
             {errors.formErrors[0]}
           </div>
         )}
-        <Button type="submit" className="mt-6" disabled={submitting}>
+        <Button className="mt-6" disabled={submitting} type="submit">
           Entrar
         </Button>
         <div className="mt-4 flex justify-center">

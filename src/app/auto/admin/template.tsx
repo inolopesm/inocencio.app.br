@@ -39,7 +39,7 @@ const Template: React.FC<TemplateProps> = ({ children }) => {
 
   useEffect(() => {
     if (authStore === undefined) return;
-    authStore.persist.rehydrate();
+    void authStore.persist.rehydrate();
     setHydrated(true);
   }, [authStore]);
 
@@ -74,18 +74,18 @@ const Template: React.FC<TemplateProps> = ({ children }) => {
       <header className="mx-auto flex min-h-14 w-full max-w-7xl flex-wrap items-center gap-4 px-4 md:px-6">
         <Popover.Root>
           <Popover.Trigger asChild>
-            <Button className="sm:hidden" variant="ghost" size="icon">
+            <Button className="sm:hidden" size="icon" variant="ghost">
               <ListIcon className="size-5" />
             </Button>
           </Popover.Trigger>
           <Popover.Portal>
             <Popover.Content
+              className="grid rounded-md border border-gray-300 bg-white py-2"
               collisionPadding={8}
               sideOffset={8}
-              className="grid rounded-md border border-gray-300 bg-white py-2"
             >
               <Popover.Close asChild>
-                <Button variant="ghost" className="justify-start" asChild>
+                <Button className="justify-start" variant="ghost" asChild>
                   <Link href="/auto/admin/">
                     <ChartLineIcon className="size-5" />
                     Dashboard
@@ -93,7 +93,7 @@ const Template: React.FC<TemplateProps> = ({ children }) => {
                 </Button>
               </Popover.Close>
               <Popover.Close asChild>
-                <Button variant="ghost" className="justify-start" asChild>
+                <Button className="justify-start" variant="ghost" asChild>
                   <Link href="/auto/admin/automoveis/">
                     <CarIcon className="size-5" />
                     Automóveis
@@ -140,16 +140,16 @@ const Template: React.FC<TemplateProps> = ({ children }) => {
           </Popover.Trigger>
           <Popover.Portal>
             <Popover.Content
+              className="rounded-md border border-gray-300 bg-white p-2"
               collisionPadding={8}
               sideOffset={8}
-              className="rounded-md border border-gray-300 bg-white p-2"
             >
               <p className="flex h-10 items-center px-2 text-sm">{user.name}</p>
               <div className="grid">
                 <Button
+                  onClick={handleLogout}
                   type="button"
                   variant="destructive"
-                  onClick={handleLogout}
                 >
                   <SignOutIcon className="size-4" />
                   Sair
@@ -162,7 +162,7 @@ const Template: React.FC<TemplateProps> = ({ children }) => {
       <main className="mx-auto w-full max-w-7xl grow px-4 py-12 md:px-6">
         {children}
       </main>
-      <footer className="p-4 text-center text-gray-600 text-sm md:px-6">
+      <footer className="p-4 text-center text-sm text-gray-600 md:px-6">
         <p>
           Este site é mantido e operado por MATHEUS INOCENCIO LOPES -
           55.740.093/0001-82

@@ -12,12 +12,20 @@ const api = axios.create({
   adapter: "fetch",
 });
 
+/**
+ * TODO: refatorar para que a função receba o accessToken para não precisar
+ * pegar dessa forma
+ */
 api.interceptors.request.use((request) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const accessToken = JSON.parse(
     window.sessionStorage.getItem("auth-storage") ?? "{}",
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   )?.state?.accessToken?.encoded;
 
+  // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
   if (accessToken) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     request.headers["x-access-token"] = accessToken;
   }
 
@@ -51,7 +59,9 @@ api.interceptors.response.use(
       return Promise.reject(new ApiError(error.response.data.message));
     }
 
-    throw Promise.reject(error);
+    /** @see https://axios-http.com/docs/interceptors */
+    // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+    return Promise.reject(error);
   },
 );
 

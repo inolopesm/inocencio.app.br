@@ -41,17 +41,98 @@ const numbers = new Set(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
 
 // biome-ignore format: better readability
 const lettersAndNumbers = new Set([
-  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
-  "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d",
-  "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s",
-  "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7",
-  "8", "9",
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+  "a",
+  "b",
+  "c",
+  "d",
+  "e",
+  "f",
+  "g",
+  "h",
+  "i",
+  "j",
+  "k",
+  "l",
+  "m",
+  "n",
+  "o",
+  "p",
+  "q",
+  "r",
+  "s",
+  "t",
+  "u",
+  "v",
+  "w",
+  "x",
+  "y",
+  "z",
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
 ]);
 
 // biome-ignore format: better readability
 const states = new Set([
-  "RO", "AC", "AM", "RR", "PA", "AP", "TO", "MA", "PI", "CE", "RN", "PB", "PE",
-  "AL", "SE", "BA", "MG", "ES", "RJ", "SP", "PR", "SC", "RS", "MS", "MT", "GO",
+  "RO",
+  "AC",
+  "AM",
+  "RR",
+  "PA",
+  "AP",
+  "TO",
+  "MA",
+  "PI",
+  "CE",
+  "RN",
+  "PB",
+  "PE",
+  "AL",
+  "SE",
+  "BA",
+  "MG",
+  "ES",
+  "RJ",
+  "SP",
+  "PR",
+  "SC",
+  "RS",
+  "MS",
+  "MT",
+  "GO",
   "DF",
 ]);
 
@@ -202,6 +283,12 @@ const Page: React.FC = () => {
     setLoading(true);
 
     try {
+      /**
+       * TODO: para ajustar acredito que eu tenha que criar um arquivo de
+       * configurações e validar process.env com o zod
+       */
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       const token = process.env.NEXT_PUBLIC_API_PLACAS_TOKEN;
       const url = `https://wdapi2.com.br/consulta/${newPlate}/${token}`;
       const response = await axios<unknown>(url, { adapter: "fetch" });
@@ -223,11 +310,11 @@ const Page: React.FC = () => {
       handleCityChange(apiplacas.municipio);
       handleStateChange(apiplacas.uf);
 
-      if (apiplacas.extra.chassi) {
+      if (apiplacas.extra.chassi !== undefined) {
         handleChassisChange(apiplacas.extra.chassi);
       }
 
-      if (apiplacas.extra.combustivel) {
+      if (apiplacas.extra.combustivel !== undefined) {
         handleFuelChange(apiplacas.extra.combustivel);
       }
     } catch {
@@ -371,13 +458,7 @@ const Page: React.FC = () => {
 
   const handlePhotoDrop = (event: React.DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
-
     event.currentTarget.dataset.inDropZone = "false";
-
-    if (!event.dataTransfer.items) {
-      Array.from(event.dataTransfer.files).forEach(handlePhoto);
-      return;
-    }
 
     for (const item of Array.from(event.dataTransfer.items)) {
       if (item.kind !== "file") {
@@ -409,13 +490,7 @@ const Page: React.FC = () => {
 
   const handleDocumentDrop = (event: React.DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
-
     event.currentTarget.dataset.inDropZone = "false";
-
-    if (!event.dataTransfer.items) {
-      Array.from(event.dataTransfer.files).forEach(handleDocument);
-      return;
-    }
 
     for (const item of Array.from(event.dataTransfer.items)) {
       if (item.kind !== "file") {
@@ -532,145 +607,145 @@ const Page: React.FC = () => {
 
   return (
     <>
-      <h1 className="font-semibold text-2xl">Novo Automóvel</h1>
+      <h1 className="text-2xl font-semibold">Novo Automóvel</h1>
       <Button className="mt-6" variant="secondary" asChild>
         <Link href="/auto/admin/automoveis/">
           <ArrowLeftIcon className="size-4" />
           Voltar
         </Link>
       </Button>
-      <form className="mt-8" onSubmit={handleSubmit}>
+      <form className="mt-8" onSubmit={(e) => void handleSubmit(e)}>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
           <TextField
+            autoCapitalize="characters"
             className="sm:col-span-2 md:col-span-4"
+            disabled={loading}
             label="Placa"
-            placeholder="AAA0X00 ou AAA9999"
-            autoCapitalize="characters"
             name="plate"
+            onValueChange={(value) => void handlePlateChange(value)}
+            placeholder="AAA0X00 ou AAA9999"
             value={plate}
-            onValueChange={handlePlateChange}
-            disabled={loading}
           />
           <TextField
+            autoCapitalize="characters"
+            disabled={loading}
             label="Marca"
-            placeholder="VW"
-            autoCapitalize="characters"
             name="brand"
-            value={brand}
             onValueChange={handleBrandChange}
-            disabled={loading}
+            placeholder="VW"
+            value={brand}
           />
           <TextField
+            autoCapitalize="characters"
+            disabled={loading}
             label="Modelo"
-            placeholder="Polo"
-            autoCapitalize="characters"
             name="model"
-            value={model}
             onValueChange={handleModelChange}
-            disabled={loading}
+            placeholder="Polo"
+            value={model}
           />
           <TextField
+            autoCapitalize="characters"
+            disabled={loading}
             label="Versão"
-            placeholder="POLO CL AD"
-            autoCapitalize="characters"
             name="variant"
-            value={variant}
             onValueChange={handleVariantChange}
-            disabled={loading}
+            placeholder="POLO CL AD"
+            value={variant}
           />
           <TextField
+            disabled={loading}
+            inputMode="numeric"
             label="Ano de Fabricação"
-            placeholder="2018"
-            inputMode="numeric"
             name="manufactureYear"
-            value={manufactureYear}
             onValueChange={handleManufactureYearChange}
-            disabled={loading}
-          />
-          <TextField
-            label="Ano do Modelo"
             placeholder="2018"
+            value={manufactureYear}
+          />
+          <TextField
+            disabled={loading}
             inputMode="numeric"
+            label="Ano do Modelo"
             name="modelYear"
-            value={modelYear}
             onValueChange={handleModelYearChange}
-            disabled={loading}
+            placeholder="2018"
+            value={modelYear}
           />
           <TextField
+            autoCapitalize="characters"
+            disabled={loading}
             label="Chassi"
-            placeholder="ABCXYZ1234XPTO567"
-            autoCapitalize="characters"
             name="chassis"
-            value={chassis}
             onValueChange={handleChassisChange}
-            disabled={loading}
+            placeholder="ABCXYZ1234XPTO567"
+            value={chassis}
           />
           <TextField
+            autoCapitalize="characters"
+            disabled={loading}
             label="Cor"
-            placeholder="BRANCA"
-            autoCapitalize="characters"
             name="color"
-            value={color}
             onValueChange={handleColorChange}
-            disabled={loading}
+            placeholder="BRANCA"
+            value={color}
           />
           <TextField
+            autoCapitalize="characters"
+            disabled={loading}
             label="Combustível"
-            placeholder="Alcool / Gasolina"
-            autoCapitalize="characters"
             name="fuel"
-            value={fuel}
             onValueChange={handleFuelChange}
-            disabled={loading}
+            placeholder="Alcool / Gasolina"
+            value={fuel}
           />
           <TextField
+            autoCapitalize="characters"
+            disabled={loading}
             label="Cidade"
-            placeholder="JOAO PESSOA"
-            autoCapitalize="characters"
             name="city"
-            value={city}
             onValueChange={handleCityChange}
-            disabled={loading}
+            placeholder="JOAO PESSOA"
+            value={city}
           />
           <TextField
-            label="Estado"
-            placeholder="PB"
             autoCapitalize="characters"
+            disabled={loading}
+            label="Estado"
             name="state"
-            value={state}
             onValueChange={handleStateChange}
-            disabled={loading}
+            placeholder="PB"
+            value={state}
           />
           <TextField
+            disabled={loading}
+            inputMode="numeric"
             label="Quilometragem"
-            placeholder="65.000"
-            inputMode="numeric"
             name="mileage"
-            value={mileage}
             onValueChange={handleMileageChange}
-            disabled={loading}
+            placeholder="65.000"
+            value={mileage}
           />
           <TextField
-            label="Preço"
-            placeholder="70.000"
-            name="price"
-            inputMode="numeric"
-            value={price}
-            onValueChange={handlePriceChange}
             disabled={loading}
+            inputMode="numeric"
+            label="Preço"
+            name="price"
+            onValueChange={handlePriceChange}
+            placeholder="70.000"
+            value={price}
           />
         </div>
         <div className="mt-6 flex flex-wrap justify-center gap-6">
           <div>
             <button
-              type="button"
-              className="group flex aspect-video max-w-xs cursor-pointer select-none flex-col items-center justify-center rounded border-2 border-gray-300 border-dashed text-center font-medium text-sm duration-150 hover:border-gray-400 data-[in-drop-zone=true]:border-primary data-[in-drop-zone=true]:bg-primary/10"
-              onDrop={handlePhotoDrop}
-              onDragOver={(event) => event.preventDefault()}
+              className="group flex aspect-video max-w-xs cursor-pointer select-none flex-col items-center justify-center rounded border-2 border-dashed border-gray-300 text-center text-sm font-medium duration-150 hover:border-gray-400 data-[in-drop-zone=true]:border-primary data-[in-drop-zone=true]:bg-primary/10"
+              onClick={() => photoInputRef.current?.click()}
+              onDragEnd={handleOutDropZone}
               onDragEnter={handleInDropZone}
               onDragLeave={handleOutDropZone}
-              onDragEnd={handleOutDropZone}
-              onClick={() => photoInputRef.current?.click()}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={handlePhotoDrop}
+              type="button"
             >
               <ImageIcon className="size-12 text-gray-400 group-[[data-in-drop-zone=true]]:text-primary" />
               <span className="mt-2">
@@ -679,24 +754,24 @@ const Page: React.FC = () => {
               </span>
             </button>
             <input
-              type="file"
-              className="hidden"
               ref={photoInputRef}
               accept=".jpg, .jpeg, .png, .webp"
+              className="hidden"
               onChange={handlePhotoInputChange}
+              type="file"
               multiple
             />
           </div>
           <div>
             <button
-              type="button"
-              className="group flex aspect-video max-w-xs cursor-pointer select-none flex-col items-center justify-center rounded border-2 border-gray-300 border-dashed text-center font-medium text-sm duration-150 hover:border-gray-400 data-[in-drop-zone=true]:border-primary data-[in-drop-zone=true]:bg-primary/10"
-              onDrop={handleDocumentDrop}
-              onDragOver={(event) => event.preventDefault()}
+              className="group flex aspect-video max-w-xs cursor-pointer select-none flex-col items-center justify-center rounded border-2 border-dashed border-gray-300 text-center text-sm font-medium duration-150 hover:border-gray-400 data-[in-drop-zone=true]:border-primary data-[in-drop-zone=true]:bg-primary/10"
+              onClick={() => documentInputRef.current?.click()}
+              onDragEnd={handleOutDropZone}
               onDragEnter={handleInDropZone}
               onDragLeave={handleOutDropZone}
-              onDragEnd={handleOutDropZone}
-              onClick={() => documentInputRef.current?.click()}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={handleDocumentDrop}
+              type="button"
             >
               <FileIcon className="size-12 text-gray-400 group-[[data-in-drop-zone=true]]:text-primary" />
               <span className="mt-2">
@@ -705,10 +780,10 @@ const Page: React.FC = () => {
               </span>
             </button>
             <input
-              type="file"
-              className="hidden"
               ref={documentInputRef}
+              className="hidden"
               onChange={handleDocumentInputChange}
+              type="file"
               multiple
             />
           </div>
@@ -720,16 +795,16 @@ const Page: React.FC = () => {
               className="relative aspect-video w-full max-w-xs shrink-0 overflow-hidden rounded"
             >
               <img
-                className="h-full w-full object-cover"
-                src={window.URL.createObjectURL(photo.file)}
                 alt=""
+                className="size-full object-cover"
+                src={window.URL.createObjectURL(photo.file)}
               />
               {index === 0 && (
-                <div className="absolute top-1 left-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-900">
+                <div className="absolute left-1 top-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-900">
                   <StarIcon className="size-5 text-white" />
                 </div>
               )}
-              <div className="absolute right-1 bottom-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-400">
+              <div className="absolute bottom-1 right-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-400">
                 {photo.status === 0 && (
                   <CloudSlashIcon className="size-5 text-white" />
                 )}
@@ -742,23 +817,23 @@ const Page: React.FC = () => {
               </div>
               <Popover.Root>
                 <Popover.Trigger
+                  className="absolute right-1 top-1 inline-flex size-8 select-none items-center justify-center rounded bg-white duration-300 hover:bg-gray-100"
                   type="button"
-                  className="absolute top-1 right-1 inline-flex size-8 select-none items-center justify-center rounded bg-white duration-300 hover:bg-gray-100"
                 >
                   <DotsThreeVerticalIcon className="size-6" weight="bold" />
                 </Popover.Trigger>
                 <Popover.Portal>
                   <Popover.Content
+                    className="grid rounded-md border border-gray-300 bg-white py-2"
                     collisionPadding={8}
                     sideOffset={8}
-                    className="grid rounded-md border border-gray-300 bg-white py-2"
                   >
                     {index !== 0 && (
                       <Popover.Close asChild>
                         <Button
-                          variant="ghost"
                           className="justify-start"
                           onClick={handlePhotoFirst(photo, index)}
+                          variant="ghost"
                         >
                           <StarIcon className="size-5" />
                           Tornar principal
@@ -768,9 +843,9 @@ const Page: React.FC = () => {
                     {index !== 0 && (
                       <Popover.Close asChild>
                         <Button
-                          variant="ghost"
                           className="justify-start"
                           onClick={handlePhotoLeft(index)}
+                          variant="ghost"
                         >
                           <ArrowLeftIcon className="size-5" />
                           Mover para esquerda
@@ -780,9 +855,9 @@ const Page: React.FC = () => {
                     {index !== photos.length - 1 && (
                       <Popover.Close asChild>
                         <Button
-                          variant="ghost"
                           className="justify-start"
                           onClick={handlePhotoRight(index)}
+                          variant="ghost"
                         >
                           <ArrowRightIcon className="size-5" />
                           Mover para direita
@@ -791,9 +866,9 @@ const Page: React.FC = () => {
                     )}
                     <Popover.Close asChild>
                       <Button
-                        variant="ghost"
                         className="justify-start"
                         onClick={handlePhotoDelete(index)}
+                        variant="ghost"
                       >
                         <TrashIcon className="size-5" />
                         Excluir
@@ -814,7 +889,7 @@ const Page: React.FC = () => {
               <div className="w-32 break-words text-center text-sm">
                 {doc.file.name}
               </div>
-              <div className="absolute right-1 bottom-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-400">
+              <div className="absolute bottom-1 right-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-400">
                 {doc.status === 0 && (
                   <CloudSlashIcon className="size-5 text-white" />
                 )}
@@ -827,22 +902,22 @@ const Page: React.FC = () => {
               </div>
               <Popover.Root>
                 <Popover.Trigger
+                  className="absolute right-1 top-1 inline-flex size-8 select-none items-center justify-center rounded bg-white duration-300 hover:bg-gray-100"
                   type="button"
-                  className="absolute top-1 right-1 inline-flex size-8 select-none items-center justify-center rounded bg-white duration-300 hover:bg-gray-100"
                 >
                   <DotsThreeVerticalIcon className="size-6" weight="bold" />
                 </Popover.Trigger>
                 <Popover.Portal>
                   <Popover.Content
+                    className="grid rounded-md border border-gray-300 bg-white py-2"
                     collisionPadding={8}
                     sideOffset={8}
-                    className="grid rounded-md border border-gray-300 bg-white py-2"
                   >
                     <Popover.Close asChild>
                       <Button
-                        variant="ghost"
                         className="justify-start"
                         onClick={handleDocumentDelete(index)}
+                        variant="ghost"
                       >
                         <TrashIcon className="size-5" />
                         Excluir
@@ -855,13 +930,13 @@ const Page: React.FC = () => {
           ))}
         </div>
         <div className="mt-8 flex justify-end gap-2">
-          <Button variant="secondary" disabled={loading} asChild>
+          <Button disabled={loading} variant="secondary" asChild>
             <Link href="/auto/admin/automoveis/">
               <XIcon className="size-4" />
               Cancelar
             </Link>
           </Button>
-          <Button type="submit" disabled={loading}>
+          <Button disabled={loading} type="submit">
             <FloppyDiskIcon className="size-4" />
             Cadastrar
           </Button>

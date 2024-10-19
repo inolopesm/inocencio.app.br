@@ -37,13 +37,13 @@ const Page: React.FC = () => {
       setAutomobiles(z.array(AutomobileSchema).parse(response.data));
     };
 
-    effect();
+    void effect();
   }, []);
 
   return (
     <>
       <header className="flex items-start">
-        <h1 className="mr-auto font-semibold text-2xl">Automóveis</h1>
+        <h1 className="mr-auto text-2xl font-semibold">Automóveis</h1>
         <Button asChild>
           <Link href="/auto/admin/automoveis/novo/">
             <PlusIcon className="size-4" />
@@ -53,49 +53,51 @@ const Page: React.FC = () => {
           </Link>
         </Button>
       </header>
-      <div className="mt-6 grid gap-4 md:grid-cols-3 lg:grid-cols-4 min-[480px]:grid-cols-2">
+      <div className="mt-6 grid gap-4 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {automobiles?.map((automobile) => (
           <Link
-            className="hover:-translate-y-px active:-translate-y-0.5 block rounded border border-gray-300 text-start"
             key={automobile.id}
+            className="block rounded border border-gray-300 text-start hover:-translate-y-px active:-translate-y-0.5"
             href={`/auto/admin/automoveis/visualizar/?id=${automobile.id}`}
           >
             <span className="relative block aspect-video overflow-hidden rounded-t bg-gray-200">
               {(automobile.photos === undefined ||
                 automobile.photos.length === 0) && (
-                <span className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 text-center text-gray-400">
+                <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-gray-400">
                   Sem foto
                 </span>
               )}
               {automobile.photos !== undefined &&
                 automobile.photos.length > 0 && (
                   <img
-                    src={getItemOrThrow(automobile.photos, 0)}
                     alt=""
-                    className="h-full w-full object-cover"
+                    className="size-full object-cover"
+                    src={getItemOrThrow(automobile.photos, 0)}
                   />
                 )}
             </span>
             <span className="block p-4">
-              <span className="block h-8 truncate font-medium text-2xl">
-                {automobile.price ? `R$ ${automobile.price}` : null}
+              <span className="block h-8 truncate text-2xl font-medium">
+                {automobile.price !== undefined
+                  ? `R$ ${automobile.price}`
+                  : null}
               </span>
               <span className="mt-2 block h-7 truncate font-medium text-gray-600">
                 {automobile.brand} {automobile.model}{" "}
                 {automobile.manufactureYear}/{automobile.modelYear}
               </span>
               <span className="mt-4 flex flex-wrap gap-1">
-                <span className="rounded bg-gray-200 px-2 py-0.5 font-medium text-xs">
+                <span className="rounded bg-gray-200 px-2 py-0.5 text-xs font-medium">
                   {automobile.color}
                 </span>
-                <span className="rounded bg-gray-200 px-2 py-0.5 font-medium text-xs">
+                <span className="rounded bg-gray-200 px-2 py-0.5 text-xs font-medium">
                   {automobile.fuel}
                 </span>
-                <span className="rounded bg-gray-200 px-2 py-0.5 font-medium text-xs">
+                <span className="rounded bg-gray-200 px-2 py-0.5 text-xs font-medium">
                   {automobile.city}/{automobile.state}
                 </span>
                 {automobile.mileage !== undefined && (
-                  <span className="rounded bg-gray-200 px-2 py-0.5 font-medium text-xs">
+                  <span className="rounded bg-gray-200 px-2 py-0.5 text-xs font-medium">
                     {automobile.mileage} km
                   </span>
                 )}

@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import localFont from "next/font/local";
 import favicon from "../assets/images/favicon.svg";
 import "../tailwind.css";
+import type { Metadata } from "next";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -20,6 +20,13 @@ const coHeadline = localFont({
 
 export const metadata: Metadata = {
   title: "inolopesm",
+
+  /**
+   * Usando any para segundo o next.js, evitar conflitos entre o plugin
+   * @svgr/webpack ou o plugin babel-plugin-inline-react-svg
+   */
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   icons: [favicon.src],
 };
 
@@ -28,7 +35,7 @@ type LayoutProps = {
 };
 
 const Layout: React.FC<LayoutProps> = ({ children }) => (
-  <html lang="pt-BR" className={`${poppins.variable} ${coHeadline.variable}`}>
+  <html className={`${poppins.variable} ${coHeadline.variable}`} lang="pt-BR">
     <body className="font-sans antialiased">{children}</body>
   </html>
 );
