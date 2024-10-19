@@ -788,147 +788,152 @@ const Page: React.FC = () => {
             />
           </div>
         </div>
-        <div className="mt-4 flex gap-4 overflow-x-auto py-2">
-          {photos.map((photo, index) => (
-            <div
-              key={photo.id}
-              className="relative aspect-video w-full max-w-xs shrink-0 overflow-hidden rounded"
-            >
-              <img
-                alt=""
-                className="size-full object-cover"
-                src={window.URL.createObjectURL(photo.file)}
-              />
-              {index === 0 && (
-                <div className="absolute left-1 top-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-900">
-                  <StarIcon className="size-5 text-white" />
+        {photos.length !== 0 && (
+          <div className="mt-4 flex gap-4 overflow-x-auto py-2">
+            {photos.map((photo, index) => (
+              <div
+                key={photo.id}
+                className="relative aspect-video w-full max-w-xs shrink-0 overflow-hidden rounded"
+              >
+                <img
+                  alt=""
+                  className="size-full object-cover"
+                  src={window.URL.createObjectURL(photo.file)}
+                />
+                {index === 0 && (
+                  <div className="absolute left-1 top-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-900">
+                    <StarIcon className="size-5 text-white" />
+                  </div>
+                )}
+                <div className="absolute bottom-1 right-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-400">
+                  {photo.status === 0 && (
+                    <CloudSlashIcon className="size-5 text-white" />
+                  )}
+                  {photo.status === 1 && (
+                    <ArrowClockwiseIcon className="size-5 text-white" />
+                  )}
+                  {photo.status === 2 && (
+                    <CloudCheckIcon className="size-5 text-white" />
+                  )}
                 </div>
-              )}
-              <div className="absolute bottom-1 right-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-400">
-                {photo.status === 0 && (
-                  <CloudSlashIcon className="size-5 text-white" />
-                )}
-                {photo.status === 1 && (
-                  <ArrowClockwiseIcon className="size-5 text-white" />
-                )}
-                {photo.status === 2 && (
-                  <CloudCheckIcon className="size-5 text-white" />
-                )}
-              </div>
-              <Popover.Root>
-                <Popover.Trigger
-                  className="absolute right-1 top-1 inline-flex size-8 select-none items-center justify-center rounded bg-white duration-300 hover:bg-gray-100"
-                  type="button"
-                >
-                  <DotsThreeVerticalIcon className="size-6" weight="bold" />
-                </Popover.Trigger>
-                <Popover.Portal>
-                  <Popover.Content
-                    className="grid rounded-md border border-gray-300 bg-white py-2"
-                    collisionPadding={8}
-                    sideOffset={8}
+                <Popover.Root>
+                  <Popover.Trigger
+                    className="absolute right-1 top-1 inline-flex size-8 select-none items-center justify-center rounded bg-white duration-300 hover:bg-gray-100"
+                    type="button"
                   >
-                    {index !== 0 && (
+                    <DotsThreeVerticalIcon className="size-6" weight="bold" />
+                  </Popover.Trigger>
+                  <Popover.Portal>
+                    <Popover.Content
+                      className="grid rounded-md border border-gray-300 bg-white py-2"
+                      collisionPadding={8}
+                      sideOffset={8}
+                    >
+                      {index !== 0 && (
+                        <Popover.Close asChild>
+                          <Button
+                            className="justify-start"
+                            onClick={handlePhotoFirst(photo, index)}
+                            variant="ghost"
+                          >
+                            <StarIcon className="size-5" />
+                            Tornar principal
+                          </Button>
+                        </Popover.Close>
+                      )}
+                      {index !== 0 && (
+                        <Popover.Close asChild>
+                          <Button
+                            className="justify-start"
+                            onClick={handlePhotoLeft(index)}
+                            variant="ghost"
+                          >
+                            <ArrowLeftIcon className="size-5" />
+                            Mover para esquerda
+                          </Button>
+                        </Popover.Close>
+                      )}
+                      {index !== photos.length - 1 && (
+                        <Popover.Close asChild>
+                          <Button
+                            className="justify-start"
+                            onClick={handlePhotoRight(index)}
+                            variant="ghost"
+                          >
+                            <ArrowRightIcon className="size-5" />
+                            Mover para direita
+                          </Button>
+                        </Popover.Close>
+                      )}
                       <Popover.Close asChild>
                         <Button
                           className="justify-start"
-                          onClick={handlePhotoFirst(photo, index)}
+                          onClick={handlePhotoDelete(index)}
                           variant="ghost"
                         >
-                          <StarIcon className="size-5" />
-                          Tornar principal
+                          <TrashIcon className="size-5" />
+                          Excluir
                         </Button>
                       </Popover.Close>
-                    )}
-                    {index !== 0 && (
-                      <Popover.Close asChild>
-                        <Button
-                          className="justify-start"
-                          onClick={handlePhotoLeft(index)}
-                          variant="ghost"
-                        >
-                          <ArrowLeftIcon className="size-5" />
-                          Mover para esquerda
-                        </Button>
-                      </Popover.Close>
-                    )}
-                    {index !== photos.length - 1 && (
-                      <Popover.Close asChild>
-                        <Button
-                          className="justify-start"
-                          onClick={handlePhotoRight(index)}
-                          variant="ghost"
-                        >
-                          <ArrowRightIcon className="size-5" />
-                          Mover para direita
-                        </Button>
-                      </Popover.Close>
-                    )}
-                    <Popover.Close asChild>
-                      <Button
-                        className="justify-start"
-                        onClick={handlePhotoDelete(index)}
-                        variant="ghost"
-                      >
-                        <TrashIcon className="size-5" />
-                        Excluir
-                      </Button>
-                    </Popover.Close>
-                  </Popover.Content>
-                </Popover.Portal>
-              </Popover.Root>
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 flex gap-4 overflow-x-auto py-2">
-          {documents.map((doc, index) => (
-            <div
-              key={doc.id}
-              className="relative flex aspect-square w-full max-w-48 shrink-0 items-center justify-center overflow-hidden rounded bg-gray-200"
-            >
-              <div className="w-32 break-words text-center text-sm">
-                {doc.file.name}
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
               </div>
-              <div className="absolute bottom-1 right-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-400">
-                {doc.status === 0 && (
-                  <CloudSlashIcon className="size-5 text-white" />
-                )}
-                {doc.status === 1 && (
-                  <ArrowClockwiseIcon className="size-5 text-white" />
-                )}
-                {doc.status === 2 && (
-                  <CloudCheckIcon className="size-5 text-white" />
-                )}
-              </div>
-              <Popover.Root>
-                <Popover.Trigger
-                  className="absolute right-1 top-1 inline-flex size-8 select-none items-center justify-center rounded bg-white duration-300 hover:bg-gray-100"
-                  type="button"
-                >
-                  <DotsThreeVerticalIcon className="size-6" weight="bold" />
-                </Popover.Trigger>
-                <Popover.Portal>
-                  <Popover.Content
-                    className="grid rounded-md border border-gray-300 bg-white py-2"
-                    collisionPadding={8}
-                    sideOffset={8}
+            ))}
+          </div>
+        )}
+        {documents.length !== 0 && (
+          <div className="mt-4 flex gap-4 overflow-x-auto py-2">
+            {documents.map((doc, index) => (
+              <div
+                key={doc.id}
+                className="relative flex aspect-square w-full max-w-48 shrink-0 flex-col items-center justify-center overflow-hidden rounded bg-gray-200"
+              >
+                <FileIcon className="size-12 text-gray-400" />
+                <div className="mt-2 w-32 break-words text-center text-sm">
+                  {doc.file.name}
+                </div>
+                <div className="absolute bottom-1 right-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-400">
+                  {doc.status === 0 && (
+                    <CloudSlashIcon className="size-5 text-white" />
+                  )}
+                  {doc.status === 1 && (
+                    <ArrowClockwiseIcon className="size-5 text-white" />
+                  )}
+                  {doc.status === 2 && (
+                    <CloudCheckIcon className="size-5 text-white" />
+                  )}
+                </div>
+                <Popover.Root>
+                  <Popover.Trigger
+                    className="absolute right-1 top-1 inline-flex size-8 select-none items-center justify-center rounded bg-white duration-300 hover:bg-gray-100"
+                    type="button"
                   >
-                    <Popover.Close asChild>
-                      <Button
-                        className="justify-start"
-                        onClick={handleDocumentDelete(index)}
-                        variant="ghost"
-                      >
-                        <TrashIcon className="size-5" />
-                        Excluir
-                      </Button>
-                    </Popover.Close>
-                  </Popover.Content>
-                </Popover.Portal>
-              </Popover.Root>
-            </div>
-          ))}
-        </div>
+                    <DotsThreeVerticalIcon className="size-6" weight="bold" />
+                  </Popover.Trigger>
+                  <Popover.Portal>
+                    <Popover.Content
+                      className="grid rounded-md border border-gray-300 bg-white py-2"
+                      collisionPadding={8}
+                      sideOffset={8}
+                    >
+                      <Popover.Close asChild>
+                        <Button
+                          className="justify-start"
+                          onClick={handleDocumentDelete(index)}
+                          variant="ghost"
+                        >
+                          <TrashIcon className="size-5" />
+                          Excluir
+                        </Button>
+                      </Popover.Close>
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="mt-8 flex justify-end gap-2">
           <Button disabled={loading} variant="secondary" asChild>
             <Link href="/auto/admin/automoveis/">
