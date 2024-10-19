@@ -21,6 +21,8 @@ const AutomobileSchema = z.object({
   plate: z.string(),
   state: z.string(),
   variant: z.string(),
+  mileage: z.string().optional(),
+  price: z.string().optional(),
   photos: z.string().array().optional(),
 });
 
@@ -75,7 +77,10 @@ const Page: React.FC = () => {
                 )}
             </span>
             <span className="block p-4">
-              <span className="block h-7 truncate font-medium text-lg">
+              <span className="block h-8 truncate font-medium text-2xl">
+                {automobile.price ? `R$ ${automobile.price}` : null}
+              </span>
+              <span className="mt-2 block h-7 truncate font-medium text-gray-600">
                 {automobile.brand} {automobile.model}{" "}
                 {automobile.manufactureYear}/{automobile.modelYear}
               </span>
@@ -89,6 +94,11 @@ const Page: React.FC = () => {
                 <span className="rounded bg-gray-200 px-2 py-0.5 font-medium text-xs">
                   {automobile.city}/{automobile.state}
                 </span>
+                {automobile.mileage !== undefined && (
+                  <span className="rounded bg-gray-200 px-2 py-0.5 font-medium text-xs">
+                    {automobile.mileage} km
+                  </span>
+                )}
               </span>
             </span>
           </Link>

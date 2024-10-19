@@ -16,9 +16,6 @@ import {
 
 import * as Popover from "@radix-ui/react-popover";
 import axios from "axios";
-import * as O from "fp-ts/Option";
-import { pipe } from "fp-ts/lib/function";
-import * as S from "fp-ts/string";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -28,42 +25,42 @@ import { Button } from "../../../../../components/ui/button";
 import { TextField } from "../../../../../components/ui/text-field";
 import { api } from "../../../../../lib/api";
 import { getItemOrThrow } from "../../../../../utils/array";
+import { intl } from "../../../../../utils/intl";
+
+type Photo = {
+  id: string;
+  file: File;
+  status: number;
+  url: string;
+};
+
+const PLATE_REGEX = /^[A-Z]{3}[0-9]{1}[0-9A-Z]{1}[0-9]{2}$/;
+
+const numbers = new Set(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
 
 // biome-ignore format: better readability
-const STATES = [
+const lettersAndNumbers = new Set([
+  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+  "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d",
+  "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s",
+  "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7",
+  "8", "9",
+]);
+
+// biome-ignore format: better readability
+const states = new Set([
   "RO", "AC", "AM", "RR", "PA", "AP", "TO", "MA", "PI", "CE", "RN", "PB", "PE",
   "AL", "SE", "BA", "MG", "ES", "RJ", "SP", "PR", "SC", "RS", "MS", "MT", "GO",
   "DF",
-];
-
-// biome-ignore format: better readability
-const UPPERCASED_LETTERS = [
-  "A",    "B",    "C",    "D",    "E",    "F",    "G",
-  "H",    "I",    "J",    "K",    "L",    "M",    "N",    "O",
-  "P",    "Q",    "R",    "S",    "T",    "U",    "V",    "W",
-  "X",    "Y",    "Z",
-];
-
-// biome-ignore format: better readability
-const LOWERCASED_LETTERS = [
-  "a",    "b",    "c",    "d",    "e",    "f",    "g",
-  "h",    "i",    "j",    "k",    "l",    "m",    "n",    "o",
-  "p",    "q",    "r",    "s",    "t",    "u",    "v",    "w",
-  "x",    "y",    "z",
-];
-
-const LETTERS = [...UPPERCASED_LETTERS, ...LOWERCASED_LETTERS];
-const NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-
-const PLATE_REGEX = /^[A-Z]{3}[0-9]{1}[0-9A-Z]{1}[0-9]{2}$/;
+]);
 
 const removeAccents = (string: string) =>
   string.normalize("NFD").replace(/\p{Diacritic}/gu, "");
 
-const keepOnly = (chars: string[]) => (string: string) =>
+const keepOnly = (chars: Set<string>) => (string: string) =>
   string
     .split("")
-    .filter((char) => chars.includes(char))
+    .filter((char) => chars.has(char))
     .join("");
 
 const ApiPlacasSchema = z.union([
@@ -119,15 +116,7 @@ const FormSchema = z.object({
     .min(1, "Ano de Fabricação é um campo obrigatório")
     .refine(
       (value) =>
-        pipe(
-          O.some(Number.parseInt(value, 10)),
-          O.filter(Number.isSafeInteger),
-          O.filter((n) => n >= 1950 && n <= 2026),
-          O.fold(
-            () => false,
-            () => true,
-          ),
-        ),
+        z.coerce.number().int().min(1950).max(2026).safeParse(value).success,
       "Ano de Fabricação deve ser um ano válido (1950-2026)",
     ),
 
@@ -137,15 +126,7 @@ const FormSchema = z.object({
     .min(1, "Ano do Modelo é um campo obrigatório")
     .refine(
       (value) =>
-        pipe(
-          O.some(Number.parseInt(value, 10)),
-          O.filter(Number.isSafeInteger),
-          O.filter((n) => n >= 1950 && n <= 2026),
-          O.fold(
-            () => false,
-            () => true,
-          ),
-        ),
+        z.coerce.number().int().min(1950).max(2026).safeParse(value).success,
       "Ano do Modelo deve ser um ano válido (1950-2026)",
     ),
 
@@ -178,19 +159,15 @@ const FormSchema = z.object({
     .string()
     .trim()
     .min(1, "Estado é um campo obrigatório")
-    .refine((value) => STATES.includes(value), "Estado inválido"),
+    .refine((value) => states.has(value), "Estado inválido"),
 
-  photos: z.array(z.string()),
+  mileage: z.string().min(1, "Quilometragem é um campo obrigatório"),
+  price: z.string().min(1, "Preço é um campo obrigatório"),
+  photos: z.array(z.string().url()),
 });
 
-type Photo = {
-  id: string;
-  file: File;
-  status: number;
-  url: string;
-};
-
 const Page: React.FC = () => {
+  const router = useRouter();
   const [plate, setPlate] = useState("");
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
@@ -202,19 +179,18 @@ const Page: React.FC = () => {
   const [fuel, setFuel] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [mileage, setMileage] = useState("");
+  const [price, setPrice] = useState("");
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [loading, setLoading] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
   const handlePlateChange = async (value: string) => {
-    const newPlate = pipe(
-      value,
-      S.slice(0, 7),
-      keepOnly([...LETTERS, ...NUMBERS]),
-      removeAccents,
-      S.toUpperCase,
-    );
+    const keepOnlyLettersAndNumbers = keepOnly(lettersAndNumbers);
+
+    const newPlate = removeAccents(
+      keepOnlyLettersAndNumbers(value.slice(0, 7)),
+    ).toUpperCase();
 
     setPlate(newPlate);
 
@@ -257,39 +233,152 @@ const Page: React.FC = () => {
     }
   };
 
+  const handleManufactureYearChange = (value: string) => {
+    const keepOnlyNumbers = keepOnly(numbers);
+    setManufactureYear(keepOnlyNumbers(value.slice(0, 4)));
+  };
+
+  const handleModelYearChange = (value: string) => {
+    const keepOnlyNumbers = keepOnly(numbers);
+    setModelYear(keepOnlyNumbers(value.slice(0, 4)));
+  };
+
+  const handleChassisChange = (value: string) => {
+    const keepOnlyLettersAndNumbers = keepOnly(lettersAndNumbers);
+    setChassis(keepOnlyLettersAndNumbers(value.slice(0, 50)).toUpperCase());
+  };
+
+  const handleMileageChange = (value: string) => {
+    const keepOnlyNumbers = keepOnly(numbers);
+    let newMileage = keepOnlyNumbers(value).slice(0, 7 /* "0000000".length */);
+
+    if (newMileage)
+      newMileage = intl.number.format(Number.parseInt(newMileage, 10));
+
+    setMileage(newMileage);
+  };
+
+  const handlePriceChange = (value: string) => {
+    const keepOnlyNumbers = keepOnly(numbers);
+    let newPrice = keepOnlyNumbers(value).slice(0, 6 /* "000000".length */);
+    if (newPrice) newPrice = intl.number.format(Number.parseInt(newPrice, 10));
+    setPrice(newPrice);
+  };
+
   const handleBrandChange = (value: string) =>
-    setBrand(pipe(value, S.slice(0, 50), removeAccents, S.toUpperCase));
+    setBrand(removeAccents(value.slice(0, 50)).toUpperCase());
 
   const handleModelChange = (value: string) =>
-    setModel(pipe(value, S.slice(0, 50), removeAccents, S.toUpperCase));
+    setModel(removeAccents(value.slice(0, 50)).toUpperCase());
 
   const handleVariantChange = (value: string) =>
-    setVariant(pipe(value, S.slice(0, 50), removeAccents, S.toUpperCase));
-
-  const handleManufactureYearChange = (value: string) =>
-    setManufactureYear(pipe(value, S.slice(0, 4), keepOnly(NUMBERS)));
-
-  const handleModelYearChange = (value: string) =>
-    setModelYear(pipe(value, S.slice(0, 4), keepOnly(NUMBERS)));
-
-  const handleChassisChange = (value: string) =>
-    setChassis(pipe(value, S.slice(0, 50), keepOnly([...LETTERS, ...NUMBERS])));
+    setVariant(removeAccents(value.slice(0, 50)).toUpperCase());
 
   const handleColorChange = (value: string) =>
-    setColor(pipe(value, S.slice(0, 50), removeAccents, S.toUpperCase));
+    setColor(removeAccents(value.slice(0, 50)).toUpperCase());
 
   const handleFuelChange = (value: string) =>
-    setFuel(pipe(value, S.slice(0, 50), removeAccents, S.toUpperCase));
+    setFuel(removeAccents(value.slice(0, 50)).toUpperCase());
 
   const handleCityChange = (value: string) =>
-    setCity(pipe(value, S.slice(0, 50), removeAccents, S.toUpperCase));
+    setCity(removeAccents(value.slice(0, 50)).toUpperCase());
 
   const handleStateChange = (value: string) =>
-    setState(pipe(value, S.slice(0, 2), removeAccents, S.toUpperCase));
+    setState(removeAccents(value.slice(0, 2)).toUpperCase());
+
+  const handlePhoto = (file: File) => {
+    if (file === null) {
+      toast.error("Não foi possível ler o arquivo arrastado");
+      return;
+    }
+
+    if (!/\.(jpg|jpeg|png|webp)$/i.test(file.name)) {
+      toast.error("Arquivo deve ser JPG, JPEG, PNG ou WEBP");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Foto deve ter no máximo 5MB");
+      return;
+    }
+
+    const id = window.crypto.randomUUID();
+    const photo = { id, file, status: 0, url: "" };
+
+    setPhotos((previous) => {
+      if (previous.length === 10) {
+        toast.error("Limite máximo de fotos (10) atingido");
+        return previous;
+      }
+
+      return [...previous, photo];
+    });
+  };
+
+  const handleDragEnter = (event: React.DragEvent<HTMLButtonElement>) => {
+    event.currentTarget.dataset.inDropZone = "true";
+  };
+
+  const handleNotInDropZone = (event: React.DragEvent<HTMLButtonElement>) => {
+    event.currentTarget.dataset.inDropZone = "false";
+  };
+
+  const handlePhotoDelete = (index: number) => () =>
+    setPhotos(photos.toSpliced(index, 1));
+
+  const handlePhotoFirst = (photo: Photo, index: number) => () =>
+    setPhotos([photo, ...photos.toSpliced(index, 1)]);
+
+  const handlePhotoLeft = (index: number) => () => {
+    const photo = getItemOrThrow(photos, index);
+    const photoOnTheLeftSide = getItemOrThrow(photos, index - 1);
+    setPhotos(photos.toSpliced(index - 1, 2, photo, photoOnTheLeftSide));
+  };
+
+  const handlePhotoRight = (index: number) => () => {
+    const photo = getItemOrThrow(photos, index);
+    const photoOnTheRightSide = getItemOrThrow(photos, index + 1);
+    setPhotos(photos.toSpliced(index, 2, photo, photoOnTheRightSide));
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+
+    event.currentTarget.dataset.inDropZone = "false";
+
+    if (!event.dataTransfer.items) {
+      Array.from(event.dataTransfer.files).forEach(handlePhoto);
+      return;
+    }
+
+    for (const item of Array.from(event.dataTransfer.items)) {
+      if (item.kind !== "file") {
+        toast.error("Item arrastado não é um arquivo");
+        continue;
+      }
+
+      const file = item.getAsFile();
+
+      if (file === null) {
+        toast.error("Não foi possível ler o arquivo arrastado");
+        continue;
+      }
+
+      handlePhoto(file);
+    }
+  };
+
+  const handlePhotoInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (event.target.files === null) return;
+    Array.from(event.target.files).forEach(handlePhoto);
+    event.target.value = "";
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
+    setLoading(true);
     const photosSent: string[] = [];
 
     for (let i = 0; i < photos.length; i++) {
@@ -308,12 +397,12 @@ const Page: React.FC = () => {
           "content-length": photo.file.size,
         });
 
-        const url = z.string().parse(response.data);
+        const s3url = z.string().parse(response.data);
 
         await axios.request({
           adapter: "fetch",
           method: "PUT",
-          url: url,
+          url: s3url,
           data: photo.file,
           headers: {
             "Content-Type": photo.file.type,
@@ -321,12 +410,16 @@ const Page: React.FC = () => {
           },
         });
 
+        const url = s3url
+          .slice(0, s3url.indexOf("?"))
+          .replace("s3.sa-east-1.amazonaws.com/", "");
+
         setPhotos((prev) => prev.toSpliced(i, 1, { ...photo, status: 2, url }));
         photosSent.push(url.slice(0, url.indexOf("?")));
       } catch (error) {
-        console.error(error);
         setPhotos((prev) => prev.toSpliced(i, 1, { ...photo, status: 1 }));
         toast.error("Não foi possível salvar a foto na nuvem");
+        setLoading(false);
         return;
       }
     }
@@ -344,6 +437,8 @@ const Page: React.FC = () => {
       city: city,
       state: state,
       photos: photosSent,
+      mileage: mileage,
+      price: price,
     } satisfies z.infer<typeof FormSchema>);
 
     if (!result.success) {
@@ -361,146 +456,6 @@ const Page: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDrop = (event: React.DragEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-
-    if (event.dataTransfer.items) {
-      for (const item of Array.from(event.dataTransfer.items)) {
-        if (item.kind === "file") {
-          const file = item.getAsFile();
-          console.log({ file });
-
-          if (file !== null) {
-            if (/\.(jpg|jpeg|png|webp)$/i.test(file.name)) {
-              if (file.size < 5 * 1024 * 1024) {
-                const id = window.crypto.randomUUID();
-                const photo = { id, file, status: 0, url: "" };
-
-                setPhotos((previous) => {
-                  if (previous.length === 10) {
-                    toast.error("Limite máximo de fotos (10) atingido");
-                    return previous;
-                  }
-
-                  return [...previous, photo];
-                });
-              } else {
-                toast.error("Foto deve ter no máximo 5MB");
-              }
-            } else {
-              toast.error("Arquivo deve ser JPG, JPEG, PNG ou WEBP");
-            }
-          }
-        }
-      }
-    } else {
-      for (const file of Array.from(event.dataTransfer.files)) {
-        if (/\.(jpg|jpeg|png|webp)$/i.test(file.name)) {
-          if (file.size < 5 * 1024 * 1024) {
-            const id = window.crypto.randomUUID();
-            const photo = { id, file, status: 0, url: "" };
-
-            setPhotos((previous) => {
-              if (previous.length === 10) {
-                toast.error("Limite máximo de fotos (10) atingido");
-                return previous;
-              }
-
-              return [...previous, photo];
-            });
-          } else {
-            toast.error("Foto deve ter no máximo 5MB");
-          }
-        } else {
-          toast.error("Arquivo deve ser JPG, JPEG, PNG ou WEBP");
-        }
-      }
-    }
-
-    if (event.target instanceof HTMLButtonElement) {
-      event.currentTarget.dataset.inDropZone = "false";
-    }
-  };
-
-  const handleDragOver = (event: React.DragEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-  };
-
-  const handleDragEnter = (event: React.DragEvent<HTMLButtonElement>) => {
-    if (!(event.target instanceof HTMLButtonElement)) return;
-    event.currentTarget.dataset.inDropZone = "true";
-  };
-
-  const handleDragLeave = (event: React.DragEvent<HTMLButtonElement>) => {
-    if (!(event.target instanceof HTMLButtonElement)) return;
-    event.currentTarget.dataset.inDropZone = "false";
-  };
-
-  const handleDragEnd = (event: React.DragEvent<HTMLButtonElement>) => {
-    if (!(event.target instanceof HTMLButtonElement)) return;
-    event.currentTarget.dataset.inDropZone = "false";
-  };
-
-  const handlePhotoDelete = (index: number) => () => {
-    setPhotos(photos.toSpliced(index, 1));
-  };
-
-  const handlePhotoFirst = (photo: Photo, index: number) => () => {
-    setPhotos([photo, ...photos.toSpliced(index, 1)]);
-  };
-
-  const handlePhotoLeft = (index: number) => () => {
-    setPhotos(
-      photos.toSpliced(
-        index - 1,
-        2,
-        getItemOrThrow(photos, index),
-        getItemOrThrow(photos, index - 1),
-      ),
-    );
-  };
-
-  const handlePhotoRight = (index: number) => () => {
-    setPhotos(
-      photos.toSpliced(
-        index,
-        2,
-        getItemOrThrow(photos, index + 1),
-        getItemOrThrow(photos, index),
-      ),
-    );
-  };
-
-  const handlePhotoInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    if (event.target.files !== null) {
-      for (const file of Array.from(event.target.files)) {
-        if (/\.(jpg|jpeg|png|webp)$/i.test(file.name)) {
-          if (file.size < 5 * 1024 * 1024) {
-            const id = window.crypto.randomUUID();
-            const photo = { id, file, status: 0, url: "" };
-
-            setPhotos((previous) => {
-              if (previous.length === 10) {
-                toast.error("Limite máximo de fotos (10) atingido");
-                return previous;
-              }
-
-              return [...previous, photo];
-            });
-          } else {
-            toast.error("Foto deve ter no máximo 5MB");
-          }
-        } else {
-          toast.error("Arquivo deve ser JPG, JPEG, PNG ou WEBP");
-        }
-      }
-    }
-
-    event.target.value === null;
   };
 
   return (
@@ -525,7 +480,7 @@ const Page: React.FC = () => {
           />
           <TextField
             label="Marca"
-            placeholder="HYUNDAI"
+            placeholder="VW"
             autoCapitalize="characters"
             value={brand}
             onValueChange={handleBrandChange}
@@ -533,7 +488,7 @@ const Page: React.FC = () => {
           />
           <TextField
             label="Modelo"
-            placeholder="HB20S"
+            placeholder="Polo"
             autoCapitalize="characters"
             value={model}
             onValueChange={handleModelChange}
@@ -541,7 +496,7 @@ const Page: React.FC = () => {
           />
           <TextField
             label="Versão"
-            placeholder="COMF"
+            placeholder="POLO CL AD"
             autoCapitalize="characters"
             value={variant}
             onValueChange={handleVariantChange}
@@ -549,7 +504,7 @@ const Page: React.FC = () => {
           />
           <TextField
             label="Ano de Fabricação"
-            placeholder="2014"
+            placeholder="2018"
             inputMode="numeric"
             value={manufactureYear}
             onValueChange={handleManufactureYearChange}
@@ -557,7 +512,7 @@ const Page: React.FC = () => {
           />
           <TextField
             label="Ano do Modelo"
-            placeholder="2015"
+            placeholder="2018"
             inputMode="numeric"
             value={modelYear}
             onValueChange={handleModelYearChange}
@@ -565,7 +520,7 @@ const Page: React.FC = () => {
           />
           <TextField
             label="Chassi"
-            placeholder="XXIZ7GYK6CBAKIXQ8"
+            placeholder="ABCXYZ1234XPTO567"
             autoCapitalize="characters"
             value={chassis}
             onValueChange={handleChassisChange}
@@ -603,15 +558,31 @@ const Page: React.FC = () => {
             onValueChange={handleStateChange}
             disabled={loading}
           />
+          <TextField
+            label="Quilometragem"
+            placeholder="65.000"
+            autoCapitalize="characters"
+            value={mileage}
+            onValueChange={handleMileageChange}
+            disabled={loading}
+          />
+          <TextField
+            label="Preço"
+            placeholder="70.000"
+            autoCapitalize="characters"
+            value={price}
+            onValueChange={handlePriceChange}
+            disabled={loading}
+          />
         </div>
         <button
           type="button"
           className="group mt-6 flex aspect-video max-w-xs cursor-pointer select-none flex-col items-center justify-center rounded border-2 border-gray-300 border-dashed text-center font-medium text-sm duration-150 hover:border-gray-400 data-[in-drop-zone=true]:border-primary data-[in-drop-zone=true]:bg-primary/10"
           onDrop={handleDrop}
-          onDragOver={handleDragOver}
+          onDragOver={(event) => event.preventDefault()}
           onDragEnter={handleDragEnter}
-          onDragLeave={handleDragLeave}
-          onDragEnd={handleDragEnd}
+          onDragLeave={handleNotInDropZone}
+          onDragEnd={handleNotInDropZone}
           onClick={() => photoInputRef.current?.click()}
         >
           <ImageIcon className="size-12 text-gray-400 group-[[data-in-drop-zone=true]]:text-primary" />
