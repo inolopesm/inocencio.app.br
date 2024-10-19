@@ -629,10 +629,10 @@ const Page: React.FC = () => {
           {photos.map((photo, index) => (
             <div
               key={photo.id}
-              className="relative aspect-video w-full max-w-xs shrink-0 overflow-hidden rounded bg-gray-300"
+              className="relative aspect-video w-full max-w-xs shrink-0 overflow-hidden rounded"
             >
               <img
-                className="h-full w-full object-contain"
+                className="h-full w-full object-cover"
                 src={window.URL.createObjectURL(photo.file)}
                 alt=""
               />

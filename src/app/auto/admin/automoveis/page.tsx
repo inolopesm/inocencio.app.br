@@ -1,5 +1,5 @@
 "use client";
-import { ImageBroken, Plus as PlusIcon } from "@phosphor-icons/react/dist/ssr";
+import { Plus as PlusIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -54,37 +54,41 @@ const Page: React.FC = () => {
       <div className="mt-6 grid gap-4 md:grid-cols-3 lg:grid-cols-4 min-[480px]:grid-cols-2">
         {automobiles?.map((automobile) => (
           <Link
-            className="hover:-translate-y-px active:-translate-y-0.5 block rounded-lg border border-gray-300 p-2 text-start"
+            className="hover:-translate-y-px active:-translate-y-0.5 block rounded border border-gray-300 text-start"
             key={automobile.id}
             href={`/auto/admin/automoveis/visualizar/?id=${automobile.id}`}
           >
-            <span className="relative block aspect-video overflow-hidden rounded bg-gray-300">
+            <span className="relative block aspect-video overflow-hidden rounded-t bg-gray-200">
               {(automobile.photos === undefined ||
                 automobile.photos.length === 0) && (
-                <ImageBroken className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 size-8 text-gray-400" />
+                <span className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 text-center text-gray-400">
+                  Sem foto
+                </span>
               )}
               {automobile.photos !== undefined &&
                 automobile.photos.length > 0 && (
                   <img
                     src={getItemOrThrow(automobile.photos, 0)}
                     alt=""
-                    className="h-full w-full object-contain"
+                    className="h-full w-full object-cover"
                   />
                 )}
             </span>
-            <span className="line-clamp-2 block h-12 font-medium">
-              {automobile.brand} {automobile.model} {automobile.manufactureYear}
-              /{automobile.modelYear}
-            </span>
-            <span className="mt-4 flex flex-wrap gap-1">
-              <span className="rounded bg-gray-200 px-2 py-0.5 font-medium text-xs">
-                {automobile.color}
+            <span className="block p-4">
+              <span className="block h-7 truncate font-medium text-lg">
+                {automobile.brand} {automobile.model}{" "}
+                {automobile.manufactureYear}/{automobile.modelYear}
               </span>
-              <span className="rounded bg-gray-200 px-2 py-0.5 font-medium text-xs">
-                {automobile.fuel}
-              </span>
-              <span className="rounded bg-gray-200 px-2 py-0.5 font-medium text-xs">
-                {automobile.city}/{automobile.state}
+              <span className="mt-4 flex flex-wrap gap-1">
+                <span className="rounded bg-gray-200 px-2 py-0.5 font-medium text-xs">
+                  {automobile.color}
+                </span>
+                <span className="rounded bg-gray-200 px-2 py-0.5 font-medium text-xs">
+                  {automobile.fuel}
+                </span>
+                <span className="rounded bg-gray-200 px-2 py-0.5 font-medium text-xs">
+                  {automobile.city}/{automobile.state}
+                </span>
               </span>
             </span>
           </Link>
