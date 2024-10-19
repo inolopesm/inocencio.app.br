@@ -5,7 +5,7 @@ import { forwardRef } from "react";
 import { twMerge } from "tailwind-merge";
 
 const button = cva(
-  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded border font-medium text-sm ring-offset-white duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded border font-medium text-sm ring-offset-white duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
   {
     variants: {
       variant: {
@@ -40,13 +40,14 @@ export type ButtonProps = React.ComponentProps<"button"> &
   };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ asChild, className, variant, size, ...props }, ref) => {
+  ({ asChild, disabled, className, variant, size, ...props }, ref) => {
     const Component = asChild ? Slot : "button";
 
     return (
       <Component
         ref={ref}
         className={twMerge(button({ variant, size }), className)}
+        {...(asChild ? { "data-disabled": disabled } : { disabled })}
         {...props}
       />
     );

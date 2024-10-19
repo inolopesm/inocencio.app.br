@@ -1,17 +1,33 @@
 "use client";
-import { ArrowLeft, FloppyDisk, X } from "@phosphor-icons/react/dist/ssr";
+
+import {
+  ArrowClockwise as ArrowClockwiseIcon,
+  ArrowLeft as ArrowLeftIcon,
+  ArrowRight as ArrowRightIcon,
+  CloudCheck as CloudCheckIcon,
+  CloudSlash as CloudSlashIcon,
+  DotsThreeVertical as DotsThreeVerticalIcon,
+  FloppyDisk as FloppyDiskIcon,
+  Image as ImageIcon,
+  Star as StarIcon,
+  Trash as TrashIcon,
+  X as XIcon,
+} from "@phosphor-icons/react/dist/ssr";
+
+import * as Popover from "@radix-ui/react-popover";
 import axios from "axios";
 import * as O from "fp-ts/Option";
 import { pipe } from "fp-ts/lib/function";
 import * as S from "fp-ts/string";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../../../../../components/ui/button";
 import { TextField } from "../../../../../components/ui/text-field";
 import { api } from "../../../../../lib/api";
+import { getItemOrThrow } from "../../../../../utils/array";
 
 // biome-ignore format: better readability
 const STATES = [
@@ -163,7 +179,16 @@ const FormSchema = z.object({
     .trim()
     .min(1, "Estado é um campo obrigatório")
     .refine((value) => STATES.includes(value), "Estado inválido"),
+
+  photos: z.array(z.string()),
 });
+
+type Photo = {
+  id: string;
+  file: File;
+  status: number;
+  url: string;
+};
 
 const Page: React.FC = () => {
   const [plate, setPlate] = useState("");
@@ -179,6 +204,8 @@ const Page: React.FC = () => {
   const [state, setState] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const handlePlateChange = async (value: string) => {
     const newPlate = pipe(
@@ -197,7 +224,7 @@ const Page: React.FC = () => {
     try {
       const token = process.env.NEXT_PUBLIC_API_PLACAS_TOKEN;
       const url = `https://wdapi2.com.br/consulta/${newPlate}/${token}`;
-      const response = await axios<unknown>(url);
+      const response = await axios<unknown>(url, { adapter: "fetch" });
       const apiplacas = ApiPlacasSchema.parse(response.data);
 
       if ("status" in apiplacas) {
@@ -263,18 +290,60 @@ const Page: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    const photosSent: string[] = [];
+
+    for (let i = 0; i < photos.length; i++) {
+      const photo = getItemOrThrow(photos, i);
+
+      if (photo.status === 2) {
+        photosSent.push(photo.url);
+        continue;
+      }
+
+      try {
+        setPhotos((prev) => prev.toSpliced(i, 1, { ...photo, status: 1 }));
+
+        const response = await api.post<unknown>("/storage", {
+          "content-type": photo.file.type,
+          "content-length": photo.file.size,
+        });
+
+        const url = z.string().parse(response.data);
+
+        await axios.request({
+          adapter: "fetch",
+          method: "PUT",
+          url: url,
+          data: photo.file,
+          headers: {
+            "Content-Type": photo.file.type,
+            "Content-Length": photo.file.size,
+          },
+        });
+
+        setPhotos((prev) => prev.toSpliced(i, 1, { ...photo, status: 2, url }));
+        photosSent.push(url.slice(0, url.indexOf("?")));
+      } catch (error) {
+        console.error(error);
+        setPhotos((prev) => prev.toSpliced(i, 1, { ...photo, status: 1 }));
+        toast.error("Não foi possível salvar a foto na nuvem");
+        return;
+      }
+    }
+
     const result = FormSchema.safeParse({
-      plate,
-      brand,
-      model,
-      variant,
-      manufactureYear,
-      modelYear,
-      chassis,
-      color,
-      fuel,
-      city,
-      state,
+      plate: plate,
+      brand: brand,
+      model: model,
+      variant: variant,
+      manufactureYear: manufactureYear,
+      modelYear: modelYear,
+      chassis: chassis,
+      color: color,
+      fuel: fuel,
+      city: city,
+      state: state,
+      photos: photosSent,
     } satisfies z.infer<typeof FormSchema>);
 
     if (!result.success) {
@@ -294,16 +363,156 @@ const Page: React.FC = () => {
     }
   };
 
+  const handleDrop = (event: React.DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+
+    if (event.dataTransfer.items) {
+      for (const item of Array.from(event.dataTransfer.items)) {
+        if (item.kind === "file") {
+          const file = item.getAsFile();
+          console.log({ file });
+
+          if (file !== null) {
+            if (/\.(jpg|jpeg|png|webp)$/i.test(file.name)) {
+              if (file.size < 5 * 1024 * 1024) {
+                const id = window.crypto.randomUUID();
+                const photo = { id, file, status: 0, url: "" };
+
+                setPhotos((previous) => {
+                  if (previous.length === 10) {
+                    toast.error("Limite máximo de fotos (10) atingido");
+                    return previous;
+                  }
+
+                  return [...previous, photo];
+                });
+              } else {
+                toast.error("Foto deve ter no máximo 5MB");
+              }
+            } else {
+              toast.error("Arquivo deve ser JPG, JPEG, PNG ou WEBP");
+            }
+          }
+        }
+      }
+    } else {
+      for (const file of Array.from(event.dataTransfer.files)) {
+        if (/\.(jpg|jpeg|png|webp)$/i.test(file.name)) {
+          if (file.size < 5 * 1024 * 1024) {
+            const id = window.crypto.randomUUID();
+            const photo = { id, file, status: 0, url: "" };
+
+            setPhotos((previous) => {
+              if (previous.length === 10) {
+                toast.error("Limite máximo de fotos (10) atingido");
+                return previous;
+              }
+
+              return [...previous, photo];
+            });
+          } else {
+            toast.error("Foto deve ter no máximo 5MB");
+          }
+        } else {
+          toast.error("Arquivo deve ser JPG, JPEG, PNG ou WEBP");
+        }
+      }
+    }
+
+    if (event.target instanceof HTMLButtonElement) {
+      event.currentTarget.dataset.inDropZone = "false";
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
+
+  const handleDragEnter = (event: React.DragEvent<HTMLButtonElement>) => {
+    if (!(event.target instanceof HTMLButtonElement)) return;
+    event.currentTarget.dataset.inDropZone = "true";
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLButtonElement>) => {
+    if (!(event.target instanceof HTMLButtonElement)) return;
+    event.currentTarget.dataset.inDropZone = "false";
+  };
+
+  const handleDragEnd = (event: React.DragEvent<HTMLButtonElement>) => {
+    if (!(event.target instanceof HTMLButtonElement)) return;
+    event.currentTarget.dataset.inDropZone = "false";
+  };
+
+  const handlePhotoDelete = (index: number) => () => {
+    setPhotos(photos.toSpliced(index, 1));
+  };
+
+  const handlePhotoFirst = (photo: Photo, index: number) => () => {
+    setPhotos([photo, ...photos.toSpliced(index, 1)]);
+  };
+
+  const handlePhotoLeft = (index: number) => () => {
+    setPhotos(
+      photos.toSpliced(
+        index - 1,
+        2,
+        getItemOrThrow(photos, index),
+        getItemOrThrow(photos, index - 1),
+      ),
+    );
+  };
+
+  const handlePhotoRight = (index: number) => () => {
+    setPhotos(
+      photos.toSpliced(
+        index,
+        2,
+        getItemOrThrow(photos, index + 1),
+        getItemOrThrow(photos, index),
+      ),
+    );
+  };
+
+  const handlePhotoInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (event.target.files !== null) {
+      for (const file of Array.from(event.target.files)) {
+        if (/\.(jpg|jpeg|png|webp)$/i.test(file.name)) {
+          if (file.size < 5 * 1024 * 1024) {
+            const id = window.crypto.randomUUID();
+            const photo = { id, file, status: 0, url: "" };
+
+            setPhotos((previous) => {
+              if (previous.length === 10) {
+                toast.error("Limite máximo de fotos (10) atingido");
+                return previous;
+              }
+
+              return [...previous, photo];
+            });
+          } else {
+            toast.error("Foto deve ter no máximo 5MB");
+          }
+        } else {
+          toast.error("Arquivo deve ser JPG, JPEG, PNG ou WEBP");
+        }
+      }
+    }
+
+    event.target.value === null;
+  };
+
   return (
     <>
       <h1 className="font-semibold text-2xl">Novo Automóvel</h1>
       <Button className="mt-6" variant="secondary" asChild>
         <Link href="/auto/admin/automoveis/">
-          <ArrowLeft className="size-4" />
+          <ArrowLeftIcon className="size-4" />
           Voltar
         </Link>
       </Button>
-      <form className="mt-6" onSubmit={handleSubmit}>
+      <form className="mt-8" onSubmit={handleSubmit}>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
           <TextField
             className="sm:col-span-2 md:col-span-4"
@@ -395,15 +604,128 @@ const Page: React.FC = () => {
             disabled={loading}
           />
         </div>
-        <div className="mt-6 flex justify-end gap-2">
-          <Button variant="secondary" asChild>
+        <button
+          type="button"
+          className="group mt-6 flex aspect-video max-w-xs cursor-pointer select-none flex-col items-center justify-center rounded border-2 border-gray-300 border-dashed text-center font-medium text-sm duration-150 hover:border-gray-400 data-[in-drop-zone=true]:border-primary data-[in-drop-zone=true]:bg-primary/10"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragEnd={handleDragEnd}
+          onClick={() => photoInputRef.current?.click()}
+        >
+          <ImageIcon className="size-12 text-gray-400 group-[[data-in-drop-zone=true]]:text-primary" />
+          Clique aqui para adicionar fotos do automóvel ou arraste-os para cá
+        </button>
+        <input
+          type="file"
+          className="hidden"
+          ref={photoInputRef}
+          accept=".jpg, .jpeg, .png, .webp"
+          onChange={handlePhotoInputChange}
+          multiple
+        />
+        <div className="mt-4 flex gap-4 overflow-x-auto py-2">
+          {photos.map((photo, index) => (
+            <div
+              key={photo.id}
+              className="relative aspect-video w-full max-w-xs shrink-0 overflow-hidden rounded bg-gray-300"
+            >
+              <img
+                className="h-full w-full object-contain"
+                src={window.URL.createObjectURL(photo.file)}
+                alt=""
+              />
+              {index === 0 && (
+                <div className="absolute top-1 left-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-900">
+                  <StarIcon className="size-5 text-white" />
+                </div>
+              )}
+              <div className="absolute right-1 bottom-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-400">
+                {photo.status === 0 && (
+                  <CloudSlashIcon className="size-5 text-white" />
+                )}
+                {photo.status === 1 && (
+                  <ArrowClockwiseIcon className="size-5 text-white" />
+                )}
+                {photo.status === 2 && (
+                  <CloudCheckIcon className="size-5 text-white" />
+                )}
+              </div>
+              <Popover.Root>
+                <Popover.Trigger
+                  type="button"
+                  className="absolute top-1 right-1 inline-flex size-8 select-none items-center justify-center rounded bg-white duration-300 hover:bg-gray-100"
+                >
+                  <DotsThreeVerticalIcon className="size-6" weight="bold" />
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Content
+                    collisionPadding={8}
+                    sideOffset={8}
+                    className="grid rounded-md border border-gray-300 bg-white py-2"
+                  >
+                    {index !== 0 && (
+                      <Popover.Close asChild>
+                        <Button
+                          variant="ghost"
+                          className="justify-start"
+                          onClick={handlePhotoFirst(photo, index)}
+                        >
+                          <StarIcon className="size-5" />
+                          Tornar principal
+                        </Button>
+                      </Popover.Close>
+                    )}
+                    {index !== 0 && (
+                      <Popover.Close asChild>
+                        <Button
+                          variant="ghost"
+                          className="justify-start"
+                          onClick={handlePhotoLeft(index)}
+                        >
+                          <ArrowLeftIcon className="size-5" />
+                          Mover para esquerda
+                        </Button>
+                      </Popover.Close>
+                    )}
+                    {index !== photos.length - 1 && (
+                      <Popover.Close asChild>
+                        <Button
+                          variant="ghost"
+                          className="justify-start"
+                          onClick={handlePhotoRight(index)}
+                        >
+                          <ArrowRightIcon className="size-5" />
+                          Mover para direita
+                        </Button>
+                      </Popover.Close>
+                    )}
+                    <Popover.Close asChild>
+                      <Button
+                        variant="ghost"
+                        className="justify-start"
+                        onClick={handlePhotoDelete(index)}
+                      >
+                        <TrashIcon className="size-5" />
+                        Excluir
+                      </Button>
+                    </Popover.Close>
+                  </Popover.Content>
+                </Popover.Portal>
+              </Popover.Root>
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 flex justify-end gap-2">
+          <Button variant="secondary" disabled={loading} asChild>
             <Link href="/auto/admin/automoveis/">
-              <X className="size-4" />
+              <XIcon className="size-4" />
               Cancelar
             </Link>
           </Button>
           <Button type="submit" disabled={loading}>
-            <FloppyDisk className="size-4" />
+            <FloppyDiskIcon className="size-4" />
             Cadastrar
           </Button>
         </div>
