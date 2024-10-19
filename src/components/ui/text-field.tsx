@@ -15,6 +15,7 @@ type TextFieldProps = Pick<
   | "inputMode"
   | "placeholder"
   | "autoComplete"
+  | "name"
 > & {
   helperText?: string | undefined;
   label: string;

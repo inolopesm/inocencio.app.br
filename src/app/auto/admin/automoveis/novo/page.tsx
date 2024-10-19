@@ -7,6 +7,7 @@ import {
   CloudCheck as CloudCheckIcon,
   CloudSlash as CloudSlashIcon,
   DotsThreeVertical as DotsThreeVerticalIcon,
+  File as FileIcon,
   FloppyDisk as FloppyDiskIcon,
   Image as ImageIcon,
   Star as StarIcon,
@@ -27,7 +28,7 @@ import { api } from "../../../../../lib/api";
 import { getItemOrThrow } from "../../../../../utils/array";
 import { intl } from "../../../../../utils/intl";
 
-type Photo = {
+type AutoFile = {
   id: string;
   file: File;
   status: number;
@@ -164,6 +165,7 @@ const FormSchema = z.object({
   mileage: z.string().min(1, "Quilometragem é um campo obrigatório"),
   price: z.string().min(1, "Preço é um campo obrigatório"),
   photos: z.array(z.string().url()),
+  documents: z.array(z.string().url()),
 });
 
 const Page: React.FC = () => {
@@ -181,9 +183,11 @@ const Page: React.FC = () => {
   const [state, setState] = useState("");
   const [mileage, setMileage] = useState("");
   const [price, setPrice] = useState("");
-  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [photos, setPhotos] = useState<AutoFile[]>([]);
+  const [documents, setDocuments] = useState<AutoFile[]>([]);
   const [loading, setLoading] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const documentInputRef = useRef<HTMLInputElement>(null);
 
   const handlePlateChange = async (value: string) => {
     const keepOnlyLettersAndNumbers = keepOnly(lettersAndNumbers);
@@ -315,18 +319,42 @@ const Page: React.FC = () => {
     });
   };
 
-  const handleDragEnter = (event: React.DragEvent<HTMLButtonElement>) => {
+  const handleDocument = (file: File) => {
+    if (file === null) {
+      toast.error("Não foi possível ler o arquivo arrastado");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Documento deve ter no máximo 5MB");
+      return;
+    }
+
+    const id = window.crypto.randomUUID();
+    const document = { id, file, status: 0, url: "" };
+
+    setDocuments((previous) => {
+      if (previous.length === 10) {
+        toast.error("Limite máximo de documentos (10) atingido");
+        return previous;
+      }
+
+      return [...previous, document];
+    });
+  };
+
+  const handleInDropZone = (event: React.DragEvent<HTMLButtonElement>) => {
     event.currentTarget.dataset.inDropZone = "true";
   };
 
-  const handleNotInDropZone = (event: React.DragEvent<HTMLButtonElement>) => {
+  const handleOutDropZone = (event: React.DragEvent<HTMLButtonElement>) => {
     event.currentTarget.dataset.inDropZone = "false";
   };
 
   const handlePhotoDelete = (index: number) => () =>
     setPhotos(photos.toSpliced(index, 1));
 
-  const handlePhotoFirst = (photo: Photo, index: number) => () =>
+  const handlePhotoFirst = (photo: AutoFile, index: number) => () =>
     setPhotos([photo, ...photos.toSpliced(index, 1)]);
 
   const handlePhotoLeft = (index: number) => () => {
@@ -341,7 +369,7 @@ const Page: React.FC = () => {
     setPhotos(photos.toSpliced(index, 2, photo, photoOnTheRightSide));
   };
 
-  const handleDrop = (event: React.DragEvent<HTMLButtonElement>) => {
+  const handlePhotoDrop = (event: React.DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     event.currentTarget.dataset.inDropZone = "false";
@@ -376,69 +404,113 @@ const Page: React.FC = () => {
     event.target.value = "";
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleDocumentDelete = (index: number) => () =>
+    setDocuments(documents.toSpliced(index, 1));
+
+  const handleDocumentDrop = (event: React.DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    setLoading(true);
-    const photosSent: string[] = [];
 
-    for (let i = 0; i < photos.length; i++) {
-      const photo = getItemOrThrow(photos, i);
+    event.currentTarget.dataset.inDropZone = "false";
 
-      if (photo.status === 2) {
-        photosSent.push(photo.url);
+    if (!event.dataTransfer.items) {
+      Array.from(event.dataTransfer.files).forEach(handleDocument);
+      return;
+    }
+
+    for (const item of Array.from(event.dataTransfer.items)) {
+      if (item.kind !== "file") {
+        toast.error("Item arrastado não é um arquivo");
         continue;
       }
 
-      try {
-        setPhotos((prev) => prev.toSpliced(i, 1, { ...photo, status: 1 }));
+      const file = item.getAsFile();
 
-        const response = await api.post<unknown>("/storage", {
-          "content-type": photo.file.type,
-          "content-length": photo.file.size,
-        });
-
-        const s3url = z.string().parse(response.data);
-
-        await axios.request({
-          adapter: "fetch",
-          method: "PUT",
-          url: s3url,
-          data: photo.file,
-          headers: {
-            "Content-Type": photo.file.type,
-            "Content-Length": photo.file.size,
-          },
-        });
-
-        const url = s3url
-          .slice(0, s3url.indexOf("?"))
-          .replace("s3.sa-east-1.amazonaws.com/", "");
-
-        setPhotos((prev) => prev.toSpliced(i, 1, { ...photo, status: 2, url }));
-        photosSent.push(url.slice(0, url.indexOf("?")));
-      } catch (error) {
-        setPhotos((prev) => prev.toSpliced(i, 1, { ...photo, status: 1 }));
-        toast.error("Não foi possível salvar a foto na nuvem");
-        setLoading(false);
-        return;
+      if (file === null) {
+        toast.error("Não foi possível ler o arquivo arrastado");
+        continue;
       }
+
+      handleDocument(file);
+    }
+  };
+
+  const handleDocumentInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (event.target.files === null) return;
+    Array.from(event.target.files).forEach(handleDocument);
+    event.target.value = "";
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+
+    const photosSent: string[] = [];
+    const documentsSent: string[] = [];
+
+    const sendToS3 = async (file: File) => {
+      const headers = {
+        "content-type": file.type,
+        "content-length": file.size,
+      };
+
+      const response = await api.post<unknown>("/storage", headers);
+      const s3url = z.string().parse(response.data);
+      await axios.put(s3url, file, { headers, adapter: "fetch" });
+
+      return s3url
+        .slice(0, s3url.indexOf("?") + 1)
+        .replace("s3.sa-east-1.amazonaws.com/", "");
+    };
+
+    try {
+      await Promise.all([
+        ...photos.map(async (photo, i) => {
+          if (photo.status === 2) {
+            photosSent.push(photo.url);
+            return;
+          }
+
+          try {
+            setPhotos((prev) => prev.toSpliced(i, 1, { ...photo, status: 1 }));
+            const url = await sendToS3(photo.file);
+            setPhotos((p) => p.toSpliced(i, 1, { ...photo, status: 2, url }));
+            photosSent.push(url.slice(0, url.indexOf("?")));
+          } catch (error) {
+            setPhotos((p) => p.toSpliced(i, 1, { ...photo, status: 1 }));
+            toast.error("Não foi possível salvar a foto na nuvem");
+            throw error;
+          }
+        }),
+        ...documents.map(async (doc, i) => {
+          if (doc.status === 2) {
+            photosSent.push(doc.url);
+            return;
+          }
+
+          setDocuments((prev) => prev.toSpliced(i, 1, { ...doc, status: 1 }));
+
+          try {
+            const url = await sendToS3(doc.file);
+            setPhotos((p) => p.toSpliced(i, 1, { ...doc, status: 2, url }));
+            documentsSent.push(url.slice(0, url.indexOf("?")));
+          } catch (error) {
+            setPhotos((p) => p.toSpliced(i, 1, { ...doc, status: 1 }));
+            toast.error("Não foi possível salvar a foto na nuvem");
+            throw error;
+          }
+        }),
+      ]);
+    } catch {
+      setLoading(false);
+      return;
     }
 
     const result = FormSchema.safeParse({
-      plate: plate,
-      brand: brand,
-      model: model,
-      variant: variant,
-      manufactureYear: manufactureYear,
-      modelYear: modelYear,
-      chassis: chassis,
-      color: color,
-      fuel: fuel,
-      city: city,
-      state: state,
-      photos: photosSent,
-      mileage: mileage,
-      price: price,
+      ...{ plate, brand, model, variant, manufactureYear, modelYear },
+      ...{ chassis, color, fuel, city, state, mileage, price },
+      ...{ photos: photosSent, documents: documentsSent },
     } satisfies z.infer<typeof FormSchema>);
 
     if (!result.success) {
@@ -474,6 +546,7 @@ const Page: React.FC = () => {
             label="Placa"
             placeholder="AAA0X00 ou AAA9999"
             autoCapitalize="characters"
+            name="plate"
             value={plate}
             onValueChange={handlePlateChange}
             disabled={loading}
@@ -482,6 +555,7 @@ const Page: React.FC = () => {
             label="Marca"
             placeholder="VW"
             autoCapitalize="characters"
+            name="brand"
             value={brand}
             onValueChange={handleBrandChange}
             disabled={loading}
@@ -490,6 +564,7 @@ const Page: React.FC = () => {
             label="Modelo"
             placeholder="Polo"
             autoCapitalize="characters"
+            name="model"
             value={model}
             onValueChange={handleModelChange}
             disabled={loading}
@@ -498,6 +573,7 @@ const Page: React.FC = () => {
             label="Versão"
             placeholder="POLO CL AD"
             autoCapitalize="characters"
+            name="variant"
             value={variant}
             onValueChange={handleVariantChange}
             disabled={loading}
@@ -506,6 +582,7 @@ const Page: React.FC = () => {
             label="Ano de Fabricação"
             placeholder="2018"
             inputMode="numeric"
+            name="manufactureYear"
             value={manufactureYear}
             onValueChange={handleManufactureYearChange}
             disabled={loading}
@@ -514,6 +591,7 @@ const Page: React.FC = () => {
             label="Ano do Modelo"
             placeholder="2018"
             inputMode="numeric"
+            name="modelYear"
             value={modelYear}
             onValueChange={handleModelYearChange}
             disabled={loading}
@@ -522,6 +600,7 @@ const Page: React.FC = () => {
             label="Chassi"
             placeholder="ABCXYZ1234XPTO567"
             autoCapitalize="characters"
+            name="chassis"
             value={chassis}
             onValueChange={handleChassisChange}
             disabled={loading}
@@ -530,6 +609,7 @@ const Page: React.FC = () => {
             label="Cor"
             placeholder="BRANCA"
             autoCapitalize="characters"
+            name="color"
             value={color}
             onValueChange={handleColorChange}
             disabled={loading}
@@ -538,6 +618,7 @@ const Page: React.FC = () => {
             label="Combustível"
             placeholder="Alcool / Gasolina"
             autoCapitalize="characters"
+            name="fuel"
             value={fuel}
             onValueChange={handleFuelChange}
             disabled={loading}
@@ -546,6 +627,7 @@ const Page: React.FC = () => {
             label="Cidade"
             placeholder="JOAO PESSOA"
             autoCapitalize="characters"
+            name="city"
             value={city}
             onValueChange={handleCityChange}
             disabled={loading}
@@ -554,6 +636,7 @@ const Page: React.FC = () => {
             label="Estado"
             placeholder="PB"
             autoCapitalize="characters"
+            name="state"
             value={state}
             onValueChange={handleStateChange}
             disabled={loading}
@@ -561,7 +644,8 @@ const Page: React.FC = () => {
           <TextField
             label="Quilometragem"
             placeholder="65.000"
-            autoCapitalize="characters"
+            inputMode="numeric"
+            name="mileage"
             value={mileage}
             onValueChange={handleMileageChange}
             disabled={loading}
@@ -569,33 +653,66 @@ const Page: React.FC = () => {
           <TextField
             label="Preço"
             placeholder="70.000"
-            autoCapitalize="characters"
+            name="price"
+            inputMode="numeric"
             value={price}
             onValueChange={handlePriceChange}
             disabled={loading}
           />
         </div>
-        <button
-          type="button"
-          className="group mt-6 flex aspect-video max-w-xs cursor-pointer select-none flex-col items-center justify-center rounded border-2 border-gray-300 border-dashed text-center font-medium text-sm duration-150 hover:border-gray-400 data-[in-drop-zone=true]:border-primary data-[in-drop-zone=true]:bg-primary/10"
-          onDrop={handleDrop}
-          onDragOver={(event) => event.preventDefault()}
-          onDragEnter={handleDragEnter}
-          onDragLeave={handleNotInDropZone}
-          onDragEnd={handleNotInDropZone}
-          onClick={() => photoInputRef.current?.click()}
-        >
-          <ImageIcon className="size-12 text-gray-400 group-[[data-in-drop-zone=true]]:text-primary" />
-          Clique aqui para adicionar fotos do automóvel ou arraste-os para cá
-        </button>
-        <input
-          type="file"
-          className="hidden"
-          ref={photoInputRef}
-          accept=".jpg, .jpeg, .png, .webp"
-          onChange={handlePhotoInputChange}
-          multiple
-        />
+        <div className="mt-6 flex flex-wrap justify-center gap-6">
+          <div>
+            <button
+              type="button"
+              className="group flex aspect-video max-w-xs cursor-pointer select-none flex-col items-center justify-center rounded border-2 border-gray-300 border-dashed text-center font-medium text-sm duration-150 hover:border-gray-400 data-[in-drop-zone=true]:border-primary data-[in-drop-zone=true]:bg-primary/10"
+              onDrop={handlePhotoDrop}
+              onDragOver={(event) => event.preventDefault()}
+              onDragEnter={handleInDropZone}
+              onDragLeave={handleOutDropZone}
+              onDragEnd={handleOutDropZone}
+              onClick={() => photoInputRef.current?.click()}
+            >
+              <ImageIcon className="size-12 text-gray-400 group-[[data-in-drop-zone=true]]:text-primary" />
+              <span className="mt-2">
+                Clique aqui para adicionar fotos do automóvel ou arraste-os para
+                cá
+              </span>
+            </button>
+            <input
+              type="file"
+              className="hidden"
+              ref={photoInputRef}
+              accept=".jpg, .jpeg, .png, .webp"
+              onChange={handlePhotoInputChange}
+              multiple
+            />
+          </div>
+          <div>
+            <button
+              type="button"
+              className="group flex aspect-video max-w-xs cursor-pointer select-none flex-col items-center justify-center rounded border-2 border-gray-300 border-dashed text-center font-medium text-sm duration-150 hover:border-gray-400 data-[in-drop-zone=true]:border-primary data-[in-drop-zone=true]:bg-primary/10"
+              onDrop={handleDocumentDrop}
+              onDragOver={(event) => event.preventDefault()}
+              onDragEnter={handleInDropZone}
+              onDragLeave={handleOutDropZone}
+              onDragEnd={handleOutDropZone}
+              onClick={() => documentInputRef.current?.click()}
+            >
+              <FileIcon className="size-12 text-gray-400 group-[[data-in-drop-zone=true]]:text-primary" />
+              <span className="mt-2">
+                Clique aqui para adicionar documentos do automóvel ou arraste-os
+                para cá
+              </span>
+            </button>
+            <input
+              type="file"
+              className="hidden"
+              ref={documentInputRef}
+              onChange={handleDocumentInputChange}
+              multiple
+            />
+          </div>
+        </div>
         <div className="mt-4 flex gap-4 overflow-x-auto py-2">
           {photos.map((photo, index) => (
             <div
@@ -677,6 +794,55 @@ const Page: React.FC = () => {
                         variant="ghost"
                         className="justify-start"
                         onClick={handlePhotoDelete(index)}
+                      >
+                        <TrashIcon className="size-5" />
+                        Excluir
+                      </Button>
+                    </Popover.Close>
+                  </Popover.Content>
+                </Popover.Portal>
+              </Popover.Root>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex gap-4 overflow-x-auto py-2">
+          {documents.map((doc, index) => (
+            <div
+              key={doc.id}
+              className="relative flex aspect-square w-full max-w-48 shrink-0 items-center justify-center overflow-hidden rounded bg-gray-200"
+            >
+              <div className="w-32 break-words text-center text-sm">
+                {doc.file.name}
+              </div>
+              <div className="absolute right-1 bottom-1 inline-flex size-8 select-none items-center justify-center rounded bg-gray-400">
+                {doc.status === 0 && (
+                  <CloudSlashIcon className="size-5 text-white" />
+                )}
+                {doc.status === 1 && (
+                  <ArrowClockwiseIcon className="size-5 text-white" />
+                )}
+                {doc.status === 2 && (
+                  <CloudCheckIcon className="size-5 text-white" />
+                )}
+              </div>
+              <Popover.Root>
+                <Popover.Trigger
+                  type="button"
+                  className="absolute top-1 right-1 inline-flex size-8 select-none items-center justify-center rounded bg-white duration-300 hover:bg-gray-100"
+                >
+                  <DotsThreeVerticalIcon className="size-6" weight="bold" />
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Content
+                    collisionPadding={8}
+                    sideOffset={8}
+                    className="grid rounded-md border border-gray-300 bg-white py-2"
+                  >
+                    <Popover.Close asChild>
+                      <Button
+                        variant="ghost"
+                        className="justify-start"
+                        onClick={handleDocumentDelete(index)}
                       >
                         <TrashIcon className="size-5" />
                         Excluir
